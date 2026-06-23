@@ -1,0 +1,85 @@
+export type Titular = {
+  id: string;
+  nome: string;
+  cpf: string | null;
+  email: string | null;
+  whatsapp: string | null;
+  status: "ativo" | "inativo";
+  created_at: string;
+  updated_at: string;
+};
+
+export type Categoria = {
+  id: string;
+  nome: string;
+  ativo: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Pagamento = {
+  id: string;
+  titular_id: string;
+  categoria_id: string | null;
+  vencimento: string;
+  valor: string | number;
+  status: "pago" | "pendente" | "atrasado";
+  data_pagamento: string | null;
+  observacao: string | null;
+  lancado_por: string | null;
+  excluido_em: string | null;
+  excluido_por: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type PagamentoComTitular = Pagamento & {
+  titulares: { nome: string } | null;
+  categorias: { nome: string } | null;
+  lancador: { nome: string } | null;
+};
+
+export type PagamentoExcluidoRow = Pagamento & {
+  titulares: { nome: string } | null;
+  categorias: { nome: string } | null;
+  lancador: { nome: string } | null;
+  excluido_por_perfil: { nome: string } | null;
+};
+
+export type Dependente = {
+  id: string;
+  titular_id: string;
+  nome: string;
+  email: string | null;
+  whatsapp: string | null;
+  status: "ativo" | "inativo";
+  created_at: string;
+  updated_at: string;
+};
+
+export type DependenteComTitular = Dependente & {
+  titulares: { nome: string } | null;
+};
+
+export type Profile = {
+  id: string;
+  nome: string;
+  perfil: "administrador" | "operador";
+  ativo: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+export type CaixaMovimento = {
+  id: string;
+  tipo: "entrada" | "saida";
+  valor: string | number;
+  descricao: string | null;
+  saldo_apos: string | number;
+  perfil_id: string;
+  created_at: string;
+};
+
+export type CaixaMovimentoComOperador = CaixaMovimento & {
+  operador: { nome: string } | null;
+};

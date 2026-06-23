@@ -1,0 +1,24 @@
+# Blueprint Render — Nosso Grupo (Next.js + Supabase)
+# Deploy: Dashboard → New → Blueprint → conecte o repositório Git.
+#
+# Monorepo: descomente rootDir com o caminho desta pasta no repositório.
+# rootDir: inimigosdofim
+services:
+  - type: web
+    name: nosso-grupo
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /login
+    envVars:
+      - key: NODE_VERSION
+        value: "20"
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_PUBLIC_SUPABASE_URL
+        sync: false
+      - key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
