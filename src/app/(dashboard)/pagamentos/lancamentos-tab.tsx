@@ -11,6 +11,7 @@ import {
 import { searchParamOne } from "@/lib/search-params";
 import type { PagamentoComTitular } from "@/types/database";
 import { ExcluirPagamentoButton } from "./excluir-pagamento-button";
+import { ExportPagamentosPdfButton } from "./export-pagamentos-pdf-button";
 import { RegistrarPagamentoDialog } from "./registrar-pagamento-dialog";
 
 const PAGAMENTO_SELECT = `
@@ -162,6 +163,47 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
     (hasFilters || skippedNoTitularMatch) &&
     !error;
 
+  const totalValor = rows.reduce((sum, p) => sum + Number(p.valor), 0);
+
+  const pdfRows = rows.map((p) => ({
+    titular: p.titulares?.nome ?? "—",
+    categoria: p.categorias?.nome ?? "—",
+    vencimento: fmtDate(p.vencimento),
+    valor: fmt(p.valor),
+    status: statusLabel[p.status] ?? p.status,
+    pagoEm: p.data_pagamento ? fmtDate(p.data_pagamento) : "—",
+    lancamento: `${p.lancador?.nome ?? (p.lancado_por ? "Perfil indisponível" : "—")} · ${
+      p.created_at ? fmtLancamento(p.created_at) : "—"
+    }`,
+  }));
+
+  const filterParts: string[] = [];
+  if (categoriaIdParam) {
+    const nome =
+      categoriasLista.find((c) => c.id === categoriaIdParam)?.nome ?? "—";
+    filterParts.push(`Categoria: ${nome}`);
+  }
+  if (titularIdParam) {
+    const nome =
+      titularesLista.find((t) => t.id === titularIdParam)?.nome ?? "—";
+    filterParts.push(`Titular: ${nome}`);
+  } else if (pessoa) {
+    filterParts.push(`Nome: ${pessoa}`);
+  }
+  if (statusFilter) {
+    filterParts.push(`Status: ${statusLabel[statusFilter] ?? statusFilter}`);
+  }
+  if (mesFilter) {
+    const [y, m] = mesFilter.split("-");
+    const mesLabel = new Date(Number(y), Number(m) - 1, 1).toLocaleDateString(
+      "pt-BR",
+      { month: "long", year: "numeric" }
+    );
+    filterParts.push(`Vencimento: ${mesLabel}`);
+  }
+  const filterSummary =
+    filterParts.length > 0 ? filterParts.join(" · ") : "Todos os lançamentos";
+
   return (
     <div className="space-y-4">
       <PagamentosFiltersForm
@@ -173,6 +215,14 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
         status={searchParamOne(sp.status) ?? ""}
         mes={searchParamOne(sp.mes) ?? ""}
       />
+
+      <div className="flex justify-end">
+        <ExportPagamentosPdfButton
+          rows={pdfRows}
+          filterSummary={filterSummary}
+          totalValor={totalValor}
+        />
+      </div>
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
