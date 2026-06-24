@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
+type Mode = "login" | "register" | "forgot";
+
 export function LoginForm() {
-  const [mode, setMode] = useState<"login" | "register">("login");
+  const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [nome, setNome] = useState("");
@@ -18,6 +20,21 @@ export function LoginForm() {
     const supabase = createClient();
 
     try {
+      if (mode === "forgot") {
+        const redirectTo = `${window.location.origin}/auth/callback?next=/redefinir-senha`;
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo,
+        });
+        if (error) {
+          setMessage(error.message);
+          return;
+        }
+        setMessage(
+          "Se o e-mail estiver cadastrado, você receberá um link para redefinir a senha."
+        );
+        return;
+      }
+
       if (mode === "login") {
         const { error } = await supabase.auth.signInWithPassword({
           email,
@@ -51,15 +68,20 @@ export function LoginForm() {
     }
   }
 
+  const title =
+    mode === "forgot"
+      ? "Recuperar senha"
+      : mode === "register"
+        ? "Criar conta"
+        : "Bem-vindo(a)!";
+
   return (
     <form
       onSubmit={(e) => void handleSubmit(e)}
       className="flex w-full max-w-md flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
     >
       <div className="text-center">
-        <h1 className="text-xl font-semibold text-slate-900">
-          Bem-vindo(a)!
-        </h1>
+        <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
         <p className="mt-1 text-sm text-slate-600">
           Inimigos do Fim — gestão de membros
         </p>
@@ -92,23 +114,39 @@ export function LoginForm() {
         />
       </label>
 
-      <label className="flex flex-col gap-1 text-sm">
-        <span className="font-medium text-slate-700">Senha</span>
-        <input
-          type="password"
-          required
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
-          placeholder="••••••••"
-          autoComplete={mode === "login" ? "current-password" : "new-password"}
-        />
-      </label>
+      {mode !== "forgot" && (
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium text-slate-700">Senha</span>
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
+            placeholder="••••••••"
+            autoComplete={
+              mode === "login" ? "current-password" : "new-password"
+            }
+          />
+        </label>
+      )}
+
+      {mode === "forgot" && (
+        <p className="text-sm text-slate-600">
+          Enviaremos um link para o seu e-mail com instruções para criar uma nova
+          senha.
+        </p>
+      )}
 
       {message && (
         <p
-          className={`text-sm ${message.startsWith("Conta criada") ? "text-emerald-700" : "text-red-600"}`}
+          className={`text-sm ${
+            message.startsWith("Conta criada") ||
+            message.startsWith("Se o e-mail")
+              ? "text-emerald-700"
+              : "text-red-600"
+          }`}
         >
           {message}
         </p>
@@ -121,14 +159,27 @@ export function LoginForm() {
       >
         {loading
           ? "Aguarde…"
-          : mode === "login"
-            ? "Entrar"
-            : "Criar conta"}
+          : mode === "forgot"
+            ? "Enviar link"
+            : mode === "login"
+              ? "Entrar"
+              : "Criar conta"}
       </button>
 
       <p className="text-center text-sm text-slate-600">
-        {mode === "login" ? (
+        {mode === "login" && (
           <>
+            <button
+              type="button"
+              className="font-medium text-blue-600 hover:underline"
+              onClick={() => {
+                setMode("forgot");
+                setMessage(null);
+              }}
+            >
+              Esqueci minha senha
+            </button>
+            <span className="mx-2">·</span>
             Primeiro acesso?{" "}
             <button
               type="button"
@@ -141,7 +192,8 @@ export function LoginForm() {
               Criar conta
             </button>
           </>
-        ) : (
+        )}
+        {mode === "register" && (
           <>
             Já tem conta?{" "}
             <button
@@ -153,6 +205,21 @@ export function LoginForm() {
               }}
             >
               Entrar
+            </button>
+          </>
+        )}
+        {mode === "forgot" && (
+          <>
+            Lembrou a senha?{" "}
+            <button
+              type="button"
+              className="font-medium text-blue-600 hover:underline"
+              onClick={() => {
+                setMode("login");
+                setMessage(null);
+              }}
+            >
+              Voltar ao login
             </button>
           </>
         )}

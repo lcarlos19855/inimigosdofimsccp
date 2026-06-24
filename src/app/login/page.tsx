@@ -10,11 +10,6 @@ export default function LoginPage() {
       <div className="relative z-10 flex w-full flex-col items-center">
         <LoginForm />
       </div>
-      <p className="relative z-10 mt-6 max-w-md text-center text-xs text-slate-500">
-        Esqueceu a senha? Use a opção de recuperação no painel do Supabase
-        (Authentication → Users) ou implemente &quot;Esqueci minha senha&quot;
-        depois.
-      </p>
     </div>
   );
 }

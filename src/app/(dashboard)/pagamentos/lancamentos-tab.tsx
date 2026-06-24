@@ -10,6 +10,7 @@ import {
 } from "@/lib/person-search";
 import { searchParamOne } from "@/lib/search-params";
 import type { PagamentoComTitular } from "@/types/database";
+import { EditarPagamentoDialog } from "./editar-pagamento-dialog";
 import { ExcluirPagamentoButton } from "./excluir-pagamento-button";
 import { ExportPagamentosPdfButton } from "./export-pagamentos-pdf-button";
 import { RegistrarPagamentoDialog } from "./registrar-pagamento-dialog";
@@ -154,7 +155,7 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
     return parts.length > 0 ? parts.join(" · ") : undefined;
   };
 
-  const colCount = 9;
+  const colCount = 10;
   const hasFilters = Boolean(
     titularIdParam || categoriaIdParam || pessoa || statusFilter || mesFilter
   );
@@ -241,7 +242,7 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[1120px] text-left text-sm">
+          <table className="w-full min-w-[1160px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Titular</th>
@@ -253,6 +254,7 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
                 <th className="px-4 py-3 text-center">Quitar</th>
                 <th className="px-4 py-3 text-center">Excluir</th>
                 <th className="px-4 py-3">Lançamento</th>
+                <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -339,6 +341,16 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
                             : "—"}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <EditarPagamentoDialog
+                        pagamentoId={p.id}
+                        titularNome={p.titulares?.nome ?? "Titular"}
+                        categorias={categoriasLista}
+                        categoriaId={p.categoria_id}
+                        vencimento={p.vencimento}
+                        valor={p.valor}
+                      />
                     </td>
                   </tr>
                 ))

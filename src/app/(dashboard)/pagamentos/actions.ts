@@ -144,3 +144,63 @@ export async function registrarRecebimentoPagamento(
   revalidatePath("/caixa");
   return {};
 }
+
+export async function updatePagamento(
+  pagamentoId: string,
+  categoriaId: string,
+  vencimento: string,
+  valorRaw: string
+): Promise<{ error?: string }> {
+  const id = pagamentoId.trim();
+  const categoria = categoriaId.trim();
+  const venc = vencimento.trim();
+  const valor = Number(valorRaw.trim().replace(",", "."));
+
+  if (!id) {
+    return { error: "Pagamento inválido." };
+  }
+  if (!categoria) {
+    return { error: "Selecione uma categoria." };
+  }
+  if (!venc) {
+    return { error: "Informe o vencimento." };
+  }
+  if (!Number.isFinite(valor) || valor <= 0) {
+    return { error: "Valor inválido." };
+  }
+
+  const supabase = await createClient();
+  const { data: row, error: fetchErr } = await supabase
+    .from("pagamentos")
+    .select("id, excluido_em")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchErr) {
+    return { error: fetchErr.message };
+  }
+  if (!row) {
+    return { error: "Pagamento não encontrado." };
+  }
+  if (row.excluido_em) {
+    return { error: "Este pagamento foi excluído." };
+  }
+
+  const { error } = await supabase
+    .from("pagamentos")
+    .update({
+      categoria_id: categoria,
+      vencimento: venc,
+      valor,
+    })
+    .eq("id", id);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/pagamentos");
+  revalidatePath("/dashboard");
+  revalidatePath("/caixa");
+  return {};
+}
