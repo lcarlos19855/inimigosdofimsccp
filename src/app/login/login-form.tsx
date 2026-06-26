@@ -3,13 +3,12 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type Mode = "login" | "register" | "forgot";
+type Mode = "login" | "forgot";
 
 export function LoginForm() {
   const [mode, setMode] = useState<Mode>("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [nome, setNome] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -35,45 +34,21 @@ export function LoginForm() {
         return;
       }
 
-      if (mode === "login") {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) {
-          setMessage(error.message);
-          return;
-        }
-        window.location.href = "/dashboard";
-        return;
-      }
-
-      const { error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
-        options: {
-          data: { nome: nome.trim() || undefined },
-        },
       });
       if (error) {
         setMessage(error.message);
         return;
       }
-      setMessage(
-        "Conta criada. Se o projeto exigir confirmação por e-mail, verifique sua caixa de entrada."
-      );
-      setMode("login");
+      window.location.href = "/dashboard";
     } finally {
       setLoading(false);
     }
   }
 
-  const title =
-    mode === "forgot"
-      ? "Recuperar senha"
-      : mode === "register"
-        ? "Criar conta"
-        : "Bem-vindo(a)!";
+  const title = mode === "forgot" ? "Recuperar senha" : "Bem-vindo(a)!";
 
   return (
     <form
@@ -83,23 +58,9 @@ export function LoginForm() {
       <div className="text-center">
         <h1 className="text-xl font-semibold text-slate-900">{title}</h1>
         <p className="mt-1 text-sm text-slate-600">
-          Inimigos do Fim — gestão de membros
+          Inimigos do Fim — gestão da turma
         </p>
       </div>
-
-      {mode === "register" && (
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700">Nome</span>
-          <input
-            type="text"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
-            placeholder="Seu nome"
-            autoComplete="name"
-          />
-        </label>
-      )}
 
       <label className="flex flex-col gap-1 text-sm">
         <span className="font-medium text-slate-700">E-mail</span>
@@ -125,9 +86,7 @@ export function LoginForm() {
             onChange={(e) => setPassword(e.target.value)}
             className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
             placeholder="••••••••"
-            autoComplete={
-              mode === "login" ? "current-password" : "new-password"
-            }
+            autoComplete="current-password"
           />
         </label>
       )}
@@ -142,7 +101,6 @@ export function LoginForm() {
       {message && (
         <p
           className={`text-sm ${
-            message.startsWith("Conta criada") ||
             message.startsWith("Se o e-mail")
               ? "text-emerald-700"
               : "text-red-600"
@@ -161,54 +119,22 @@ export function LoginForm() {
           ? "Aguarde…"
           : mode === "forgot"
             ? "Enviar link"
-            : mode === "login"
-              ? "Entrar"
-              : "Criar conta"}
+            : "Entrar"}
       </button>
 
       <p className="text-center text-sm text-slate-600">
-        {mode === "login" && (
-          <>
-            <button
-              type="button"
-              className="font-medium text-blue-600 hover:underline"
-              onClick={() => {
-                setMode("forgot");
-                setMessage(null);
-              }}
-            >
-              Esqueci minha senha
-            </button>
-            <span className="mx-2">·</span>
-            Primeiro acesso?{" "}
-            <button
-              type="button"
-              className="font-medium text-blue-600 hover:underline"
-              onClick={() => {
-                setMode("register");
-                setMessage(null);
-              }}
-            >
-              Criar conta
-            </button>
-          </>
-        )}
-        {mode === "register" && (
-          <>
-            Já tem conta?{" "}
-            <button
-              type="button"
-              className="font-medium text-blue-600 hover:underline"
-              onClick={() => {
-                setMode("login");
-                setMessage(null);
-              }}
-            >
-              Entrar
-            </button>
-          </>
-        )}
-        {mode === "forgot" && (
+        {mode === "login" ? (
+          <button
+            type="button"
+            className="font-medium text-blue-600 hover:underline"
+            onClick={() => {
+              setMode("forgot");
+              setMessage(null);
+            }}
+          >
+            Esqueci minha senha
+          </button>
+        ) : (
           <>
             Lembrou a senha?{" "}
             <button

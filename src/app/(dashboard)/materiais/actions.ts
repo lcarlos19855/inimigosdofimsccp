@@ -60,6 +60,7 @@ export async function createMaterial(
   });
 
   revalidatePath("/materiais");
+  revalidatePath("/auditoria");
   redirect("/materiais");
 }
 
@@ -109,6 +110,7 @@ export async function updateMaterial(
   });
 
   revalidatePath("/materiais");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -158,5 +160,6 @@ export async function excluirMaterial(
   });
 
   revalidatePath("/materiais");
+  revalidatePath("/auditoria");
   return {};
 }

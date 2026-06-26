@@ -11,6 +11,7 @@ const links: { href: string; label: string; disabled?: boolean }[] = [
   { href: "/caixa", label: "Caixa" },
   { href: "/comunicados", label: "Comunicados" },
   { href: "/materiais", label: "Controle de Materiais" },
+  { href: "/auditoria", label: "Auditoria" },
   { href: "/usuarios", label: "Usuários" },
 ];
 
@@ -79,7 +80,7 @@ export function DashboardNav() {
             Inimigos do Fim
           </p>
           <p className="text-sm font-semibold text-slate-900">
-            Gestão de membros
+            Gestão da turma
           </p>
         </div>
         <nav className="flex flex-1 flex-col gap-1 p-3">

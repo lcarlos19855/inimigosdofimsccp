@@ -6,7 +6,7 @@
 -- 3. Authentication → URL Configuration → Site URL: http://localhost:3000
 -- 4. Rode este script no SQL Editor (projeto novo). Se o banco já existia antes, use
 --    supabase/migration_pagamentos_auditoria.sql para colunas de auditoria e exclusão lógica.
--- 5. Authentication → Users → Add user (primeiro admin) ou use /login com "Criar conta" em dev.
+-- 5. Authentication → Users → Add user (primeiro admin). Demais usuários pelo painel em Usuários.
 -- 6. (Opcional) Para tornar alguém administrador: update profiles set perfil = 'administrador' where id = 'uuid';
 
 -- Perfis de administradores (espelha auth.users)
@@ -213,6 +213,21 @@ create table public.materiais_auditoria (
 create index materiais_auditoria_material_idx
   on public.materiais_auditoria (material_id, created_at desc);
 
+create table public.pagamentos_auditoria (
+  id uuid primary key default gen_random_uuid(),
+  pagamento_id uuid not null,
+  acao text not null check (
+    acao in ('criacao', 'edicao', 'registro_pagamento', 'exclusao')
+  ),
+  dados_antes jsonb,
+  dados_depois jsonb,
+  executado_por uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index pagamentos_auditoria_pagamento_idx
+  on public.pagamentos_auditoria (pagamento_id, created_at desc);
+
 -- RLS
 alter table public.profiles enable row level security;
 alter table public.titulares enable row level security;
@@ -222,6 +237,7 @@ alter table public.pagamentos enable row level security;
 alter table public.membros_auditoria enable row level security;
 alter table public.materiais enable row level security;
 alter table public.materiais_auditoria enable row level security;
+alter table public.pagamentos_auditoria enable row level security;
 
 -- Painel interno: qualquer usuário autenticado acessa tudo (MVP)
 create policy "profiles_authenticated_all" on public.profiles
@@ -240,6 +256,9 @@ create policy "materiais_authenticated_all" on public.materiais
   for all to authenticated using (true) with check (true);
 
 create policy "materiais_auditoria_authenticated_all" on public.materiais_auditoria
+  for all to authenticated using (true) with check (true);
+
+create policy "pagamentos_auditoria_authenticated_all" on public.pagamentos_auditoria
   for all to authenticated using (true) with check (true);
 
 create policy "categorias_authenticated_all" on public.categorias

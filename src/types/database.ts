@@ -76,6 +76,16 @@ export type DependenteComTitular = Dependente & {
   titulares: { nome: string } | null;
 };
 
+export type PagamentoAuditoria = {
+  id: string;
+  pagamento_id: string;
+  acao: "criacao" | "edicao" | "registro_pagamento" | "exclusao";
+  dados_antes: Record<string, unknown> | null;
+  dados_depois: Record<string, unknown> | null;
+  executado_por: string | null;
+  created_at: string;
+};
+
 export type Material = {
   id: string;
   nome: string;

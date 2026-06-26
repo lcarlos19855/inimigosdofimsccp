@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Inimigos do Fim — Gestão de membros",
+  title: "Inimigos do Fim — Gestão da turma",
   description: "Controle de titulares, dependentes e recebimentos",
 };
 

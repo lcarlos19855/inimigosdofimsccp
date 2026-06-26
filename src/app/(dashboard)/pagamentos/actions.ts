@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import {
+  registrarPagamentoAuditoria,
+  snapshotPagamento,
+} from "@/lib/pagamentos-auditoria";
 import { createClient } from "@/lib/supabase/server";
 
 export type PagamentoFormState = { error?: string } | null;
@@ -56,14 +60,28 @@ export async function createPagamento(
     observacao,
   }));
 
-  const { error } = await supabase.from("pagamentos").insert(rows);
+  const { data: inserted, error } = await supabase
+    .from("pagamentos")
+    .insert(rows)
+    .select(
+      "id, titular_id, categoria_id, vencimento, valor, status, data_pagamento, observacao"
+    );
 
   if (error) {
     return { error: error.message };
   }
 
+  for (const row of inserted ?? []) {
+    await registrarPagamentoAuditoria({
+      pagamentoId: row.id,
+      acao: "criacao",
+      depois: snapshotPagamento(row),
+    });
+  }
+
   revalidatePath("/pagamentos");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   redirect("/pagamentos");
 }
 
@@ -76,6 +94,24 @@ export async function excluirPagamento(
   }
 
   const supabase = await createClient();
+  const { data: antes, error: fetchErr } = await supabase
+    .from("pagamentos")
+    .select(
+      "id, titular_id, categoria_id, vencimento, valor, status, data_pagamento, observacao, excluido_em"
+    )
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchErr) {
+    return { error: fetchErr.message };
+  }
+  if (!antes) {
+    return { error: "Pagamento não encontrado." };
+  }
+  if (antes.excluido_em) {
+    return { error: "Este pagamento já foi excluído." };
+  }
+
   const { error } = await supabase.rpc("soft_delete_pagamento", {
     p_id: id,
   });
@@ -84,9 +120,17 @@ export async function excluirPagamento(
     return { error: error.message };
   }
 
+  await registrarPagamentoAuditoria({
+    pagamentoId: id,
+    acao: "exclusao",
+    antes: snapshotPagamento(antes),
+    depois: null,
+  });
+
   revalidatePath("/pagamentos");
   revalidatePath("/pagamentos/excluidos");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -105,43 +149,57 @@ export async function registrarRecebimentoPagamento(
   }
 
   const supabase = await createClient();
-  const { data: row, error: fetchErr } = await supabase
+  const { data: antes, error: fetchErr } = await supabase
     .from("pagamentos")
-    .select("id, status, excluido_em")
+    .select(
+      "id, titular_id, categoria_id, vencimento, valor, status, data_pagamento, observacao, excluido_em"
+    )
     .eq("id", id)
     .maybeSingle();
 
   if (fetchErr) {
     return { error: fetchErr.message };
   }
-  if (!row) {
+  if (!antes) {
     return { error: "Pagamento não encontrado." };
   }
-  if (row.excluido_em) {
+  if (antes.excluido_em) {
     return { error: "Este pagamento foi excluído." };
   }
-  if (row.status === "pago") {
+  if (antes.status === "pago") {
     return { error: "Este pagamento já está como pago." };
   }
-  if (row.status !== "pendente" && row.status !== "atrasado") {
+  if (antes.status !== "pendente" && antes.status !== "atrasado") {
     return { error: "Só é possível registrar recebimento para pendente ou atrasado." };
   }
 
-  const { error } = await supabase
+  const { data: depois, error } = await supabase
     .from("pagamentos")
     .update({
       status: "pago",
       data_pagamento: data,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select(
+      "id, titular_id, categoria_id, vencimento, valor, status, data_pagamento, observacao"
+    )
+    .single();
 
   if (error) {
     return { error: error.message };
   }
 
+  await registrarPagamentoAuditoria({
+    pagamentoId: id,
+    acao: "registro_pagamento",
+    antes: snapshotPagamento(antes),
+    depois: snapshotPagamento(depois),
+  });
+
   revalidatePath("/pagamentos");
   revalidatePath("/dashboard");
   revalidatePath("/caixa");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -170,37 +228,51 @@ export async function updatePagamento(
   }
 
   const supabase = await createClient();
-  const { data: row, error: fetchErr } = await supabase
+  const { data: antes, error: fetchErr } = await supabase
     .from("pagamentos")
-    .select("id, excluido_em")
+    .select(
+      "id, titular_id, categoria_id, vencimento, valor, status, data_pagamento, observacao, excluido_em"
+    )
     .eq("id", id)
     .maybeSingle();
 
   if (fetchErr) {
     return { error: fetchErr.message };
   }
-  if (!row) {
+  if (!antes) {
     return { error: "Pagamento não encontrado." };
   }
-  if (row.excluido_em) {
+  if (antes.excluido_em) {
     return { error: "Este pagamento foi excluído." };
   }
 
-  const { error } = await supabase
+  const { data: depois, error } = await supabase
     .from("pagamentos")
     .update({
       categoria_id: categoria,
       vencimento: venc,
       valor,
     })
-    .eq("id", id);
+    .eq("id", id)
+    .select(
+      "id, titular_id, categoria_id, vencimento, valor, status, data_pagamento, observacao"
+    )
+    .single();
 
   if (error) {
     return { error: error.message };
   }
 
+  await registrarPagamentoAuditoria({
+    pagamentoId: id,
+    acao: "edicao",
+    antes: snapshotPagamento(antes),
+    depois: snapshotPagamento(depois),
+  });
+
   revalidatePath("/pagamentos");
   revalidatePath("/dashboard");
   revalidatePath("/caixa");
+  revalidatePath("/auditoria");
   return {};
 }

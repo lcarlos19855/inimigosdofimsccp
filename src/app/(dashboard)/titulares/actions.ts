@@ -56,6 +56,7 @@ export async function createTitular(
   });
 
   revalidatePath("/titulares");
+  revalidatePath("/auditoria");
   redirect("/titulares");
 }
 
@@ -105,6 +106,7 @@ export async function updateTitular(
 
   revalidatePath("/titulares");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -148,6 +150,7 @@ export async function toggleTitularStatus(
 
   revalidatePath("/titulares");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -200,5 +203,6 @@ export async function excluirTitular(
   revalidatePath("/titulares");
   revalidatePath("/dependentes");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }

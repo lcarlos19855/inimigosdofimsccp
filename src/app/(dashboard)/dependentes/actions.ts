@@ -60,6 +60,7 @@ export async function createDependente(
 
   revalidatePath("/dependentes");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   redirect("/dependentes");
 }
 
@@ -110,6 +111,7 @@ export async function updateDependente(
 
   revalidatePath("/dependentes");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -153,6 +155,7 @@ export async function toggleDependenteStatus(
 
   revalidatePath("/dependentes");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }
 
@@ -204,5 +207,6 @@ export async function excluirDependente(
 
   revalidatePath("/dependentes");
   revalidatePath("/dashboard");
+  revalidatePath("/auditoria");
   return {};
 }

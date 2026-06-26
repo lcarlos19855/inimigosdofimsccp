@@ -3,8 +3,9 @@ import { createClient } from "@/lib/supabase/server";
 import { TitularesFiltersForm } from "@/components/dashboard-list-filters";
 import { personSearchQuery } from "@/lib/person-search";
 import { searchParamOne } from "@/lib/search-params";
-import type { Titular } from "@/types/database";
-import { TitularRowActions } from "./titular-row-actions";
+import type { Dependente, Titular } from "@/types/database";
+import type { DependenteResumo } from "./titular-dependentes-dialog";
+import { TitularesTable } from "./titulares-table";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -32,13 +33,40 @@ export default async function TitularesPage({ searchParams }: Props) {
   const hasFilters = Boolean(pessoa);
   const emptyBecauseFilter = titulares.length === 0 && hasFilters;
 
+  const dependentesByTitular: Record<string, DependenteResumo[]> = {};
+
+  if (titulares.length > 0) {
+    const ids = titulares.map((t) => t.id);
+    const { data: deps } = await supabase
+      .from("dependentes")
+      .select("id, titular_id, nome, email, whatsapp, status")
+      .in("titular_id", ids)
+      .is("excluido_em", null)
+      .order("nome");
+
+    for (const d of (deps ?? []) as Dependente[]) {
+      const resumo: DependenteResumo = {
+        id: d.id,
+        nome: d.nome,
+        email: d.email,
+        whatsapp: d.whatsapp,
+        status: d.status,
+      };
+      if (!dependentesByTitular[d.titular_id]) {
+        dependentesByTitular[d.titular_id] = [];
+      }
+      dependentesByTitular[d.titular_id].push(resumo);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">Titulares</h1>
           <p className="text-sm text-slate-600">
-            Cadastro de titulares do grupo
+            Cadastro de titulares do grupo — clique em um registro para ver os
+            dependentes
           </p>
         </div>
         <Link
@@ -70,8 +98,8 @@ export default async function TitularesPage({ searchParams }: Props) {
                 <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
-              {titulares.length === 0 ? (
+            {titulares.length === 0 ? (
+              <tbody>
                 <tr>
                   <td
                     colSpan={6}
@@ -100,37 +128,13 @@ export default async function TitularesPage({ searchParams }: Props) {
                     )}
                   </td>
                 </tr>
-              ) : (
-                titulares.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/80">
-                    <td className="px-4 py-3 font-medium text-slate-900">
-                      {t.nome}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{t.cpf ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {t.email ?? "—"}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {t.whatsapp ?? "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={
-                          t.status === "ativo"
-                            ? "inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800"
-                            : "inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700"
-                        }
-                      >
-                        {t.status === "ativo" ? "Ativo" : "Inativo"}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center align-middle">
-                      <TitularRowActions titular={t} />
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
+              </tbody>
+            ) : (
+              <TitularesTable
+                titulares={titulares}
+                dependentesByTitular={dependentesByTitular}
+              />
+            )}
           </table>
         </div>
       </div>
