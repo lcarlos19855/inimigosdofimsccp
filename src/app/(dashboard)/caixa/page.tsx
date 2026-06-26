@@ -52,9 +52,9 @@ export default async function CaixaPage() {
         <h1 className="text-2xl font-semibold text-slate-900">Caixa</h1>
         <p className="text-sm text-slate-600">
           Saldo disponível soma os <strong>lançamentos manuais</strong> (entradas
-          e saídas abaixo) com todos os <strong>pagamentos em status Pago</strong>{" "}
-          da aba Pagamentos (não excluídos). Evite registrar uma{" "}
-          <em>entrada</em> manual pelo mesmo valor de um pagamento já marcado
+          e saídas abaixo) com todos os <strong>recebimentos em status Pago</strong>{" "}
+          da aba Recebimentos (não excluídos). Evite registrar uma{" "}
+          <em>entrada</em> manual pelo mesmo valor de um recebimento já marcado
           como Pago, para não duplicar.
         </p>
       </div>
@@ -78,7 +78,7 @@ export default async function CaixaPage() {
 
       {pagamentosError && !caixaError && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-          Não foi possível carregar pagamentos para o saldo:{" "}
+          Não foi possível carregar recebimentos para o saldo:{" "}
           {pagamentosError.message}
         </p>
       )}
@@ -99,7 +99,7 @@ export default async function CaixaPage() {
               </dd>
             </div>
             <div>
-              <dt className="text-slate-500">Pagamentos recebidos (Pago)</dt>
+              <dt className="text-slate-500">Recebimentos (Pago)</dt>
               <dd className="font-medium text-slate-800">
                 {fmt(totalPagamentosPago)}
               </dd>
@@ -107,7 +107,7 @@ export default async function CaixaPage() {
           </dl>
           <p className="mt-3 text-xs text-slate-500">
             Saídas manuais não podem ultrapassar o saldo disponível acima. Ao
-            marcar um pagamento como Pago em Pagamentos, o total disponível
+            marcar um recebimento como Pago em Recebimentos, o total disponível
             aumenta automaticamente.
           </p>
         </div>
@@ -141,7 +141,7 @@ export default async function CaixaPage() {
                     className="px-4 py-10 text-center text-slate-500"
                   >
                     Nenhum movimento manual ainda. O saldo ainda pode refletir
-                    apenas pagamentos marcados como Pago.
+                    apenas recebimentos marcados como Pago.
                   </td>
                 </tr>
               ) : (
@@ -182,7 +182,7 @@ export default async function CaixaPage() {
         </div>
         <p className="border-t border-slate-100 px-4 py-2 text-xs text-slate-500">
           * Total disponível logo após este lançamento (caixa manual + soma dos
-          pagamentos Pago naquele instante). Se novos pagamentos forem marcados
+          recebimentos Pago naquele instante). Se novos recebimentos forem marcados
           como Pago depois, o número no topo passa a refletir isso; linhas
           antigas não são recalculadas.
         </p>

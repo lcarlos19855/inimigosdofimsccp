@@ -1,14 +1,10 @@
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 
-export type PagamentoPdfRow = {
-  titular: string;
-  categoria: string;
-  vencimento: string;
-  valor: string;
-  status: string;
-  pagoEm: string;
-  lancamento: string;
+export type MaterialPdfRow = {
+  nome: string;
+  descricao: string;
+  quantidade: string;
 };
 
 async function loadWatermarkDataUrl(): Promise<string | null> {
@@ -48,20 +44,19 @@ function drawWatermark(doc: jsPDF, dataUrl: string) {
   doc.addImage(dataUrl, "PNG", x, y, size, size, undefined, "FAST");
 }
 
-function formatTotalBrl(total: number) {
-  return total.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-}
-
-export async function exportPagamentosPdf(
-  rows: PagamentoPdfRow[],
-  filterSummary: string,
-  totalValor: number
+export async function exportMateriaisPdf(
+  rows: MaterialPdfRow[],
+  filterSummary: string
 ) {
-  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const watermark = await loadWatermarkDataUrl();
 
-  const title = "Recebimentos — Inimigos do Fim";
+  const title = "Controle de Materiais — Inimigos do Fim";
   const generatedAt = new Date().toLocaleString("pt-BR");
+  const totalQuantidade = rows.reduce(
+    (sum, r) => sum + Number.parseInt(r.quantidade, 10),
+    0
+  );
 
   doc.setFontSize(16);
   doc.setTextColor(15, 23, 42);
@@ -71,34 +66,20 @@ export async function exportPagamentosPdf(
   doc.setTextColor(71, 85, 105);
   doc.text(`Gerado em ${generatedAt}`, 14, 22);
   doc.text(`Filtros: ${filterSummary}`, 14, 27);
-  doc.text(`Total (${rows.length} lançamento${rows.length === 1 ? "" : "s"}): ${formatTotalBrl(totalValor)}`, 14, 32);
+  doc.text(
+    `Total: ${rows.length} material${rows.length === 1 ? "" : "is"} · ${totalQuantidade} unidade${totalQuantidade === 1 ? "" : "s"}`,
+    14,
+    32
+  );
   doc.setTextColor(0, 0, 0);
 
   autoTable(doc, {
     startY: 38,
-    head: [
-      [
-        "Titular",
-        "Categoria",
-        "Vencimento",
-        "Valor",
-        "Status",
-        "Pago em",
-        "Lançamento",
-      ],
-    ],
-    body: rows.map((r) => [
-      r.titular,
-      r.categoria,
-      r.vencimento,
-      r.valor,
-      r.status,
-      r.pagoEm,
-      r.lancamento,
-    ]),
+    head: [["Nome", "Descrição", "Quantidade"]],
+    body: rows.map((r) => [r.nome, r.descricao, r.quantidade]),
     styles: {
-      fontSize: 8,
-      cellPadding: 2.5,
+      fontSize: 9,
+      cellPadding: 3,
       overflow: "linebreak",
       cellWidth: "wrap",
     },
@@ -110,13 +91,9 @@ export async function exportPagamentosPdf(
     alternateRowStyles: { fillColor: [255, 255, 255] },
     bodyStyles: { fillColor: [255, 255, 255] },
     columnStyles: {
-      0: { cellWidth: 42 },
-      1: { cellWidth: 28 },
-      2: { cellWidth: 24 },
-      3: { cellWidth: 24 },
-      4: { cellWidth: 22 },
-      5: { cellWidth: 24 },
-      6: { cellWidth: "auto" },
+      0: { cellWidth: 45 },
+      1: { cellWidth: "auto" },
+      2: { cellWidth: 28, halign: "center" },
     },
     margin: { left: 14, right: 14 },
   });
@@ -130,5 +107,5 @@ export async function exportPagamentosPdf(
   }
 
   const date = new Date().toISOString().slice(0, 10);
-  doc.save(`recebimentos-${date}.pdf`);
+  doc.save(`materiais-${date}.pdf`);
 }

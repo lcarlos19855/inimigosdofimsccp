@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Inimigos do Fim — Gestão de membros",
-  description: "Controle de titulares, dependentes e pagamentos",
+  description: "Controle de titulares, dependentes e recebimentos",
 };
 
 export default function RootLayout({

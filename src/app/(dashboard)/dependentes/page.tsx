@@ -3,7 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { DependentesFiltersForm } from "@/components/dashboard-list-filters";
 import { personSearchQuery } from "@/lib/person-search";
 import { searchParamOne } from "@/lib/search-params";
-import type { DependenteComTitular } from "@/types/database";
+import type { DependenteComTitular, Titular } from "@/types/database";
+import { DependenteRowActions } from "./dependente-row-actions";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
@@ -26,6 +27,13 @@ export default async function DependentesPage({ searchParams }: Props) {
 
   const supabase = await createClient();
 
+  const { data: titularesOpts } = await supabase
+    .from("titulares")
+    .select("*")
+    .is("excluido_em", null)
+    .order("nome");
+  const titularesLista = (titularesOpts ?? []) as Titular[];
+
   let dependentes: DependenteComTitular[] = [];
   let error: { message: string } | null = null;
 
@@ -35,9 +43,14 @@ export default async function DependentesPage({ searchParams }: Props) {
         supabase
           .from("dependentes")
           .select("*, titulares(nome)")
+          .is("excluido_em", null)
           .ilike("nome", `%${pessoa}%`)
           .order("nome"),
-        supabase.from("titulares").select("id").ilike("nome", `%${pessoa}%`),
+        supabase
+          .from("titulares")
+          .select("id")
+          .is("excluido_em", null)
+          .ilike("nome", `%${pessoa}%`),
       ]);
 
     error = e1 ?? e2;
@@ -48,6 +61,7 @@ export default async function DependentesPage({ searchParams }: Props) {
       const { data: dt, error: e3 } = await supabase
         .from("dependentes")
         .select("*, titulares(nome)")
+        .is("excluido_em", null)
         .in("titular_id", tids)
         .order("nome");
       if (e3) error = e3;
@@ -62,6 +76,7 @@ export default async function DependentesPage({ searchParams }: Props) {
     const { data, error: e } = await supabase
       .from("dependentes")
       .select("*, titulares(nome)")
+      .is("excluido_em", null)
       .order("nome");
     error = e;
     dependentes = (data ?? []) as DependenteComTitular[];
@@ -97,7 +112,7 @@ export default async function DependentesPage({ searchParams }: Props) {
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[720px] text-left text-sm">
+          <table className="w-full min-w-[840px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Nome</th>
@@ -105,13 +120,14 @@ export default async function DependentesPage({ searchParams }: Props) {
                 <th className="px-4 py-3">E-mail</th>
                 <th className="px-4 py-3">WhatsApp</th>
                 <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
               {dependentes.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={5}
+                    colSpan={6}
                     className="px-4 py-10 text-center text-slate-500"
                   >
                     {emptyBecauseFilter ? (
@@ -162,6 +178,12 @@ export default async function DependentesPage({ searchParams }: Props) {
                       >
                         {d.status === "ativo" ? "Ativo" : "Inativo"}
                       </span>
+                    </td>
+                    <td className="px-4 py-3 text-center align-middle">
+                      <DependenteRowActions
+                        dependente={d}
+                        titulares={titularesLista}
+                      />
                     </td>
                   </tr>
                 ))

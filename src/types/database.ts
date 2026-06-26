@@ -5,6 +5,8 @@ export type Titular = {
   email: string | null;
   whatsapp: string | null;
   status: "ativo" | "inativo";
+  excluido_em: string | null;
+  excluido_por: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -53,12 +55,46 @@ export type Dependente = {
   email: string | null;
   whatsapp: string | null;
   status: "ativo" | "inativo";
+  excluido_em: string | null;
+  excluido_por: string | null;
   created_at: string;
   updated_at: string;
 };
 
+export type MembroAuditoria = {
+  id: string;
+  entidade: "titular" | "dependente";
+  entidade_id: string;
+  acao: "criacao" | "edicao" | "ativacao" | "desativacao" | "exclusao";
+  dados_antes: Record<string, unknown> | null;
+  dados_depois: Record<string, unknown> | null;
+  executado_por: string | null;
+  created_at: string;
+};
+
 export type DependenteComTitular = Dependente & {
   titulares: { nome: string } | null;
+};
+
+export type Material = {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  quantidade: number;
+  excluido_em: string | null;
+  excluido_por: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type MaterialAuditoria = {
+  id: string;
+  material_id: string;
+  acao: "criacao" | "edicao" | "exclusao";
+  dados_antes: Record<string, unknown> | null;
+  dados_depois: Record<string, unknown> | null;
+  executado_por: string | null;
+  created_at: string;
 };
 
 export type Profile = {

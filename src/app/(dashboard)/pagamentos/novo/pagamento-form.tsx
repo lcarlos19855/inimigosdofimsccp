@@ -232,7 +232,7 @@ export function PagamentoForm({
             {pending
               ? "Salvando…"
               : selected.size > 1
-                ? `Salvar ${selected.size} pagamentos`
+                ? `Salvar ${selected.size} recebimentos`
                 : "Salvar"}
           </button>
           <Link

@@ -23,7 +23,7 @@ function EntradaForm() {
       </h2>
       <p className="text-xs text-emerald-800">
         Saldo inicial ou outras entradas que <strong>não</strong> entram pela
-        aba Pagamentos. Pagamentos já marcados como Pago já entram no saldo
+        aba Recebimentos. Recebimentos já marcados como Pago já entram no saldo
         disponível.
       </p>
       {state?.error && (

@@ -9,6 +9,7 @@ export default async function NovoDependentePage() {
     .from("titulares")
     .select("*")
     .eq("status", "ativo")
+    .is("excluido_em", null)
     .order("nome");
 
   const titulares = (data ?? []) as Titular[];

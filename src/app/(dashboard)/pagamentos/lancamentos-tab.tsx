@@ -37,7 +37,11 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
   const supabase = await createClient();
 
   const [{ data: titularesOpts }, { data: categoriasOpts }] = await Promise.all([
-    supabase.from("titulares").select("id, nome").order("nome"),
+    supabase
+      .from("titulares")
+      .select("id, nome")
+      .is("excluido_em", null)
+      .order("nome"),
     supabase.from("categorias").select("id, nome").eq("ativo", true).order("nome"),
   ]);
 
@@ -81,6 +85,7 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
     const { data: ts } = await supabase
       .from("titulares")
       .select("id")
+      .is("excluido_em", null)
       .ilike("nome", `%${pessoa}%`);
     const ids = ts?.map((t) => t.id) ?? [];
     if (ids.length === 0) {
@@ -266,7 +271,7 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
                   >
                     {emptyBecauseFilter ? (
                       <>
-                        Nenhum pagamento encontrado com esses filtros.{" "}
+                        Nenhum recebimento encontrado com esses filtros.{" "}
                         <Link
                           href="/pagamentos"
                           className="font-medium text-blue-600 hover:underline"
@@ -276,7 +281,7 @@ export async function LancamentosTab({ searchParams: sp }: Props) {
                       </>
                     ) : (
                       <>
-                        Nenhum pagamento registrado.{" "}
+                        Nenhum recebimento registrado.{" "}
                         <Link
                           href="/pagamentos/novo"
                           className="font-medium text-blue-600 hover:underline"

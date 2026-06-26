@@ -62,6 +62,8 @@ create table public.titulares (
   whatsapp text,
   status text not null default 'ativo'
     check (status in ('ativo', 'inativo')),
+  excluido_em timestamptz,
+  excluido_por uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -79,6 +81,8 @@ create table public.dependentes (
   whatsapp text,
   status text not null default 'ativo'
     check (status in ('ativo', 'inativo')),
+  excluido_em timestamptz,
+  excluido_por uuid references public.profiles (id) on delete set null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -163,12 +167,61 @@ $$;
 
 grant execute on function public.soft_delete_pagamento(uuid) to authenticated;
 
+-- Auditoria de titulares e dependentes
+create table public.membros_auditoria (
+  id uuid primary key default gen_random_uuid(),
+  entidade text not null check (entidade in ('titular', 'dependente')),
+  entidade_id uuid not null,
+  acao text not null check (
+    acao in ('criacao', 'edicao', 'ativacao', 'desativacao', 'exclusao')
+  ),
+  dados_antes jsonb,
+  dados_depois jsonb,
+  executado_por uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index membros_auditoria_entidade_idx
+  on public.membros_auditoria (entidade, entidade_id, created_at desc);
+
+-- Materiais
+create table public.materiais (
+  id uuid primary key default gen_random_uuid(),
+  nome text not null,
+  descricao text,
+  quantidade integer not null default 0 check (quantidade >= 0),
+  excluido_em timestamptz,
+  excluido_por uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create trigger materiais_updated_at
+  before update on public.materiais
+  for each row execute function public.set_updated_at();
+
+create table public.materiais_auditoria (
+  id uuid primary key default gen_random_uuid(),
+  material_id uuid not null,
+  acao text not null check (acao in ('criacao', 'edicao', 'exclusao')),
+  dados_antes jsonb,
+  dados_depois jsonb,
+  executado_por uuid references public.profiles (id) on delete set null,
+  created_at timestamptz not null default now()
+);
+
+create index materiais_auditoria_material_idx
+  on public.materiais_auditoria (material_id, created_at desc);
+
 -- RLS
 alter table public.profiles enable row level security;
 alter table public.titulares enable row level security;
 alter table public.dependentes enable row level security;
 alter table public.categorias enable row level security;
 alter table public.pagamentos enable row level security;
+alter table public.membros_auditoria enable row level security;
+alter table public.materiais enable row level security;
+alter table public.materiais_auditoria enable row level security;
 
 -- Painel interno: qualquer usuário autenticado acessa tudo (MVP)
 create policy "profiles_authenticated_all" on public.profiles
@@ -178,6 +231,15 @@ create policy "titulares_authenticated_all" on public.titulares
   for all to authenticated using (true) with check (true);
 
 create policy "dependentes_authenticated_all" on public.dependentes
+  for all to authenticated using (true) with check (true);
+
+create policy "membros_auditoria_authenticated_all" on public.membros_auditoria
+  for all to authenticated using (true) with check (true);
+
+create policy "materiais_authenticated_all" on public.materiais
+  for all to authenticated using (true) with check (true);
+
+create policy "materiais_auditoria_authenticated_all" on public.materiais_auditoria
   for all to authenticated using (true) with check (true);
 
 create policy "categorias_authenticated_all" on public.categorias

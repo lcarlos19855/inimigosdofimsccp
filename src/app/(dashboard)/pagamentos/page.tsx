@@ -17,7 +17,7 @@ export default async function PagamentosPage({ searchParams }: Props) {
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Pagamentos</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Recebimentos</h1>
           <p className="text-sm text-slate-600">
             {aba === "categorias"
               ? "Cadastre categorias para classificar os recebimentos."
@@ -30,13 +30,13 @@ export default async function PagamentosPage({ searchParams }: Props) {
               href="/pagamentos/excluidos"
               className="inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
             >
-              Pagamentos excluídos
+              Recebimentos excluídos
             </Link>
             <Link
               href="/pagamentos/novo"
               className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
             >
-              Registrar pagamento
+              Registrar recebimento
             </Link>
           </div>
         ) : null}

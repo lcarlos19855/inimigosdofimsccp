@@ -51,6 +51,7 @@ export async function enviarComunicado(
       .from("titulares")
       .select("email")
       .eq("status", "ativo")
+      .is("excluido_em", null)
       .not("email", "is", null);
     if (error) {
       return { error: error.message };
@@ -63,6 +64,7 @@ export async function enviarComunicado(
       .from("dependentes")
       .select("email")
       .eq("status", "ativo")
+      .is("excluido_em", null)
       .not("email", "is", null);
     if (error) {
       return { error: error.message };

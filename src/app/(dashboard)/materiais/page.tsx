@@ -1,87 +1,113 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { TitularesFiltersForm } from "@/components/dashboard-list-filters";
 import { personSearchQuery } from "@/lib/person-search";
 import { searchParamOne } from "@/lib/search-params";
-import type { Titular } from "@/types/database";
-import { TitularRowActions } from "./titular-row-actions";
+import type { Material } from "@/types/database";
+import { ExportMateriaisPdfButton } from "./export-materiais-pdf-button";
+import { MaterialRowActions } from "./material-row-actions";
+import { MateriaisFiltersForm } from "./materiais-filters-form";
 
 type Props = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function TitularesPage({ searchParams }: Props) {
+export default async function MateriaisPage({ searchParams }: Props) {
   const sp = await searchParams;
-  const pessoaInput = searchParamOne(sp.pessoa);
-  const pessoa = personSearchQuery(pessoaInput);
+  const nomeInput = searchParamOne(sp.nome);
+  const nome = personSearchQuery(nomeInput);
 
   const supabase = await createClient();
   let query = supabase
-    .from("titulares")
+    .from("materiais")
     .select("*")
     .is("excluido_em", null)
     .order("nome");
 
-  if (pessoa) {
-    query = query.ilike("nome", `%${pessoa}%`);
+  if (nome) {
+    query = query.ilike("nome", `%${nome}%`);
   }
 
   const { data, error } = await query;
+  const materiais = (data ?? []) as Material[];
+  const hasFilters = Boolean(nome);
+  const emptyBecauseFilter = materiais.length === 0 && hasFilters;
 
-  const titulares = (data ?? []) as Titular[];
-  const hasFilters = Boolean(pessoa);
-  const emptyBecauseFilter = titulares.length === 0 && hasFilters;
+  const filterSummary = nome ? `Nome: ${nomeInput}` : "Todos os materiais";
+  const pdfRows = materiais.map((m) => ({
+    nome: m.nome,
+    descricao: m.descricao ?? "—",
+    quantidade: String(m.quantidade),
+  }));
+  const totalQuantidade = materiais.reduce((sum, m) => sum + m.quantidade, 0);
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Titulares</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Controle de Materiais
+          </h1>
           <p className="text-sm text-slate-600">
-            Cadastro de titulares do grupo
+            Cadastro de materiais do grupo com histórico de alterações
           </p>
         </div>
         <Link
-          href="/titulares/novo"
+          href="/materiais/novo"
           className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
         >
-          Novo titular
+          Novo material
         </Link>
       </div>
 
-      <TitularesFiltersForm pessoa={pessoaInput ?? ""} />
+      <MateriaisFiltersForm nome={nomeInput ?? ""} />
+
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-slate-600">
+          {materiais.length} material{materiais.length === 1 ? "" : "is"} ·{" "}
+          {totalQuantidade} unidade{totalQuantidade === 1 ? "" : "s"}
+        </p>
+        <ExportMateriaisPdfButton rows={pdfRows} filterSummary={filterSummary} />
+      </div>
 
       {error && (
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {error.message}
+          {error.message.includes("materiais") ? (
+            <>
+              {" "}
+              Rode no Supabase o script{" "}
+              <code className="rounded bg-red-100 px-1">
+                supabase/migration_materiais.sql
+              </code>
+              .
+            </>
+          ) : null}
         </p>
       )}
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Nome</th>
-                <th className="px-4 py-3">CPF</th>
-                <th className="px-4 py-3">E-mail</th>
-                <th className="px-4 py-3">WhatsApp</th>
-                <th className="px-4 py-3">Status</th>
+                <th className="px-4 py-3">Descrição</th>
+                <th className="px-4 py-3 text-center">Quantidade</th>
                 <th className="px-4 py-3 text-center">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {titulares.length === 0 ? (
+              {materiais.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={4}
                     className="px-4 py-10 text-center text-slate-500"
                   >
                     {emptyBecauseFilter ? (
                       <>
-                        Nenhum titular encontrado com esse filtro.{" "}
+                        Nenhum material encontrado com esse filtro.{" "}
                         <Link
-                          href="/titulares"
+                          href="/materiais"
                           className="font-medium text-blue-600 hover:underline"
                         >
                           Limpar filtro
@@ -89,9 +115,9 @@ export default async function TitularesPage({ searchParams }: Props) {
                       </>
                     ) : (
                       <>
-                        Nenhum titular cadastrado.{" "}
+                        Nenhum material cadastrado.{" "}
                         <Link
-                          href="/titulares/novo"
+                          href="/materiais/novo"
                           className="font-medium text-blue-600 hover:underline"
                         >
                           Adicionar o primeiro
@@ -101,31 +127,19 @@ export default async function TitularesPage({ searchParams }: Props) {
                   </td>
                 </tr>
               ) : (
-                titulares.map((t) => (
-                  <tr key={t.id} className="hover:bg-slate-50/80">
+                materiais.map((m) => (
+                  <tr key={m.id} className="hover:bg-slate-50/80">
                     <td className="px-4 py-3 font-medium text-slate-900">
-                      {t.nome}
-                    </td>
-                    <td className="px-4 py-3 text-slate-600">{t.cpf ?? "—"}</td>
-                    <td className="px-4 py-3 text-slate-600">
-                      {t.email ?? "—"}
+                      {m.nome}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
-                      {t.whatsapp ?? "—"}
+                      {m.descricao ?? "—"}
                     </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={
-                          t.status === "ativo"
-                            ? "inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-800"
-                            : "inline-flex rounded-full bg-slate-200 px-2 py-0.5 text-xs font-medium text-slate-700"
-                        }
-                      >
-                        {t.status === "ativo" ? "Ativo" : "Inativo"}
-                      </span>
+                    <td className="px-4 py-3 text-center text-slate-800">
+                      {m.quantidade}
                     </td>
                     <td className="px-4 py-3 text-center align-middle">
-                      <TitularRowActions titular={t} />
+                      <MaterialRowActions material={m} />
                     </td>
                   </tr>
                 ))

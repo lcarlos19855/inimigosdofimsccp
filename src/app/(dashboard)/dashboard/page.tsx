@@ -22,24 +22,34 @@ export default async function DashboardPage() {
       .select("valor")
       .eq("status", "pago")
       .is("excluido_em", null),
-    supabase.from("titulares").select("*", { count: "exact", head: true }),
     supabase
       .from("titulares")
       .select("*", { count: "exact", head: true })
-      .eq("status", "ativo"),
+      .is("excluido_em", null),
     supabase
       .from("titulares")
       .select("*", { count: "exact", head: true })
-      .eq("status", "inativo"),
-    supabase.from("dependentes").select("*", { count: "exact", head: true }),
+      .eq("status", "ativo")
+      .is("excluido_em", null),
+    supabase
+      .from("titulares")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "inativo")
+      .is("excluido_em", null),
     supabase
       .from("dependentes")
       .select("*", { count: "exact", head: true })
-      .eq("status", "ativo"),
+      .is("excluido_em", null),
     supabase
       .from("dependentes")
       .select("*", { count: "exact", head: true })
-      .eq("status", "inativo"),
+      .eq("status", "ativo")
+      .is("excluido_em", null),
+    supabase
+      .from("dependentes")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "inativo")
+      .is("excluido_em", null),
     supabase
       .from("pagamentos")
       .select("valor")
@@ -89,7 +99,7 @@ export default async function DashboardPage() {
                 {fmt(saldoDisponivel)}
               </p>
               <p className="mt-3 text-xs text-slate-500">
-                Caixa manual {fmt(saldoCaixaManual)} + pagamentos{" "}
+                Caixa manual {fmt(saldoCaixaManual)} + recebimentos{" "}
                 <span className="whitespace-nowrap">Pago {fmt(totalPagamentosPago)}</span>
               </p>
             </>
@@ -129,7 +139,7 @@ export default async function DashboardPage() {
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-sm font-medium text-slate-500">
-            Pagamentos pendentes
+            Recebimentos pendentes
           </p>
           <p className="mt-1 text-2xl font-semibold text-amber-700">
             {pendentes.data?.length ?? 0}
@@ -140,7 +150,7 @@ export default async function DashboardPage() {
         </div>
         <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <p className="text-sm font-medium text-slate-500">
-            Pagamentos atrasados
+            Recebimentos atrasados
           </p>
           <p className="mt-1 text-2xl font-semibold text-red-700">
             {atrasados.data?.length ?? 0}
@@ -172,7 +182,7 @@ export default async function DashboardPage() {
             href="/pagamentos/novo"
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            Registrar pagamento
+            Registrar recebimento
           </Link>
           <Link
             href="/caixa"

@@ -10,6 +10,7 @@ export default async function NovoPagamentoPage() {
       .from("titulares")
       .select("*")
       .eq("status", "ativo")
+      .is("excluido_em", null)
       .order("nome"),
     supabase
       .from("categorias")
@@ -28,13 +29,13 @@ export default async function NovoPagamentoPage() {
           href="/pagamentos"
           className="text-sm font-medium text-blue-600 hover:underline"
         >
-          ← Voltar para pagamentos
+          ← Voltar para recebimentos
         </Link>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900">
           Novo pagamento
         </h1>
         <p className="text-sm text-slate-600">
-          Registre um ou vários pagamentos de uma vez
+          Registre um ou vários recebimentos de uma vez
         </p>
       </div>
       {categorias.length === 0 ? (
@@ -44,7 +45,7 @@ export default async function NovoPagamentoPage() {
             href="/pagamentos?aba=categorias"
             className="font-semibold text-blue-700 hover:underline"
           >
-            Pagamentos → Categorias
+            Recebimentos → Categorias
           </Link>{" "}
           antes de registrar lançamentos.
         </p>

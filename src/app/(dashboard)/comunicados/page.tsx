@@ -15,11 +15,13 @@ export default async function ComunicadosPage() {
       .from("titulares")
       .select("email")
       .eq("status", "ativo")
+      .is("excluido_em", null)
       .not("email", "is", null),
     supabase
       .from("dependentes")
       .select("email")
       .eq("status", "ativo")
+      .is("excluido_em", null)
       .not("email", "is", null),
   ]);
 

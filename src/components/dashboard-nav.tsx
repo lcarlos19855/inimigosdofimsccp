@@ -7,9 +7,10 @@ const links: { href: string; label: string; disabled?: boolean }[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/titulares", label: "Titulares" },
   { href: "/dependentes", label: "Dependentes" },
-  { href: "/pagamentos", label: "Pagamentos" },
+  { href: "/pagamentos", label: "Recebimentos" },
   { href: "/caixa", label: "Caixa" },
   { href: "/comunicados", label: "Comunicados" },
+  { href: "/materiais", label: "Controle de Materiais" },
   { href: "/usuarios", label: "Usuários" },
 ];
 

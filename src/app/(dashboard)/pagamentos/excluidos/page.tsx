@@ -46,10 +46,10 @@ export default async function PagamentosExcluidosPage() {
             href="/pagamentos"
             className="text-sm font-medium text-blue-600 hover:underline"
           >
-            ← Voltar para pagamentos ativos
+            ← Voltar para recebimentos ativos
           </Link>
           <h1 className="mt-2 text-2xl font-semibold text-slate-900">
-            Pagamentos excluídos
+            Recebimentos excluídos
           </h1>
           <p className="text-sm text-slate-600">
             Registros removidos da lista principal; permanecem para auditoria.
