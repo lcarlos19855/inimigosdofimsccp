@@ -41,6 +41,7 @@ function formatKey(key: string): string {
     observacao: "Observação",
     descricao: "Descrição",
     quantidade: "Quantidade",
+    data_nascimento: "Nascimento",
   };
   return labels[key] ?? key;
 }

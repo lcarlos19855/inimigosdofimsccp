@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { verifyCurrentUserPassword } from "@/lib/auth/verify-password";
+import { parseDataNascimento } from "@/lib/idade";
 import {
   registrarMembroAuditoria,
   snapshotDependente,
@@ -12,12 +13,24 @@ import { createClient } from "@/lib/supabase/server";
 
 export type DependenteFormState = { error?: string } | null;
 
+const DEPENDENTE_SELECT =
+  "id, titular_id, nome, cpf, email, whatsapp, data_nascimento, status";
+
 async function requireActiveProfile() {
   const profile = await getCurrentProfile();
   if (!profile?.ativo) {
     return { error: "Sessão inválida ou usuário inativo." };
   }
   return { profile };
+}
+
+function parseDataNascimentoField(raw: FormDataEntryValue | null) {
+  const value = String(raw ?? "").trim();
+  if (!value) return { value: null as string | null };
+  if (!parseDataNascimento(value)) {
+    return { error: "Data de nascimento inválida." };
+  }
+  return { value };
 }
 
 export async function createDependente(
@@ -29,8 +42,11 @@ export async function createDependente(
 
   const titularId = String(formData.get("titular_id") ?? "").trim();
   const nome = String(formData.get("nome") ?? "").trim();
+  const cpf = String(formData.get("cpf") ?? "").trim() || null;
   const email = String(formData.get("email") ?? "").trim() || null;
   const whatsapp = String(formData.get("whatsapp") ?? "").trim() || null;
+  const nasc = parseDataNascimentoField(formData.get("data_nascimento"));
+  if ("error" in nasc) return nasc;
   const status = formData.get("status") === "inativo" ? "inativo" : "ativo";
 
   if (!titularId) {
@@ -43,8 +59,16 @@ export async function createDependente(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("dependentes")
-    .insert({ titular_id: titularId, nome, email, whatsapp, status })
-    .select("id, titular_id, nome, email, whatsapp, status")
+    .insert({
+      titular_id: titularId,
+      nome,
+      cpf,
+      email,
+      whatsapp,
+      data_nascimento: nasc.value,
+      status,
+    })
+    .select(DEPENDENTE_SELECT)
     .single();
 
   if (error) {
@@ -74,8 +98,11 @@ export async function updateDependente(
   const id = dependenteId.trim();
   const titularId = String(formData.get("titular_id") ?? "").trim();
   const nome = String(formData.get("nome") ?? "").trim();
+  const cpf = String(formData.get("cpf") ?? "").trim() || null;
   const email = String(formData.get("email") ?? "").trim() || null;
   const whatsapp = String(formData.get("whatsapp") ?? "").trim() || null;
+  const nasc = parseDataNascimentoField(formData.get("data_nascimento"));
+  if ("error" in nasc) return nasc;
 
   if (!id) return { error: "Dependente inválido." };
   if (!titularId) return { error: "Selecione um titular." };
@@ -84,7 +111,7 @@ export async function updateDependente(
   const supabase = await createClient();
   const { data: antes, error: fetchErr } = await supabase
     .from("dependentes")
-    .select("id, titular_id, nome, email, whatsapp, status, excluido_em")
+    .select(`${DEPENDENTE_SELECT}, excluido_em`)
     .eq("id", id)
     .maybeSingle();
 
@@ -94,9 +121,16 @@ export async function updateDependente(
 
   const { data: depois, error } = await supabase
     .from("dependentes")
-    .update({ titular_id: titularId, nome, email, whatsapp })
+    .update({
+      titular_id: titularId,
+      nome,
+      cpf,
+      email,
+      whatsapp,
+      data_nascimento: nasc.value,
+    })
     .eq("id", id)
-    .select("id, titular_id, nome, email, whatsapp, status")
+    .select(DEPENDENTE_SELECT)
     .single();
 
   if (error) return { error: error.message };
@@ -127,7 +161,7 @@ export async function toggleDependenteStatus(
   const supabase = await createClient();
   const { data: antes, error: fetchErr } = await supabase
     .from("dependentes")
-    .select("id, titular_id, nome, email, whatsapp, status, excluido_em")
+    .select(`${DEPENDENTE_SELECT}, excluido_em`)
     .eq("id", id)
     .maybeSingle();
 
@@ -140,7 +174,7 @@ export async function toggleDependenteStatus(
     .from("dependentes")
     .update({ status: novoStatus })
     .eq("id", id)
-    .select("id, titular_id, nome, email, whatsapp, status")
+    .select(DEPENDENTE_SELECT)
     .single();
 
   if (error) return { error: error.message };
@@ -179,7 +213,7 @@ export async function excluirDependente(
 
   const { data: antes, error: fetchErr } = await supabase
     .from("dependentes")
-    .select("id, titular_id, nome, email, whatsapp, status, excluido_em")
+    .select(`${DEPENDENTE_SELECT}, excluido_em`)
     .eq("id", id)
     .maybeSingle();
 

@@ -15,6 +15,7 @@ type TitularRow = {
   cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
 };
 

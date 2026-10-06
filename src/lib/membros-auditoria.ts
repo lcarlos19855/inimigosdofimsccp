@@ -46,6 +46,7 @@ export function snapshotTitular(row: {
   cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento?: string | null;
   status: string;
 }) {
   return {
@@ -54,6 +55,7 @@ export function snapshotTitular(row: {
     cpf: row.cpf,
     email: row.email,
     whatsapp: row.whatsapp,
+    data_nascimento: row.data_nascimento ?? null,
     status: row.status,
   };
 }
@@ -62,16 +64,20 @@ export function snapshotDependente(row: {
   id: string;
   titular_id: string;
   nome: string;
+  cpf?: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento?: string | null;
   status: string;
 }) {
   return {
     id: row.id,
     titular_id: row.titular_id,
     nome: row.nome,
+    cpf: row.cpf ?? null,
     email: row.email,
     whatsapp: row.whatsapp,
+    data_nascimento: row.data_nascimento ?? null,
     status: row.status,
   };
 }

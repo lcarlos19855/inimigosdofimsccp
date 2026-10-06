@@ -50,6 +50,24 @@ export function DependenteForm({ titulares }: { titulares: Titular[] }) {
         />
       </label>
       <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium text-slate-700">Data de nascimento</span>
+        <input
+          name="data_nascimento"
+          type="date"
+          disabled={pending}
+          className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
+        <span className="font-medium text-slate-700">CPF</span>
+        <input
+          name="cpf"
+          disabled={pending}
+          className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
+          placeholder="000.000.000-00"
+        />
+      </label>
+      <label className="flex flex-col gap-1 text-sm">
         <span className="font-medium text-slate-700">E-mail</span>
         <input
           name="email"

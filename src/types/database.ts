@@ -4,6 +4,7 @@ export type Titular = {
   cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
   excluido_em: string | null;
   excluido_por: string | null;
@@ -52,13 +53,47 @@ export type Dependente = {
   id: string;
   titular_id: string;
   nome: string;
+  cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
   excluido_em: string | null;
   excluido_por: string | null;
   created_at: string;
   updated_at: string;
+};
+
+export type InscricaoStatus = "pendente" | "aprovado" | "rejeitado";
+
+export type Inscricao = {
+  id: string;
+  titular_nome: string;
+  titular_cpf: string | null;
+  titular_email: string | null;
+  titular_whatsapp: string | null;
+  titular_data_nascimento: string;
+  status: InscricaoStatus;
+  motivo_rejeicao: string | null;
+  revisado_por: string | null;
+  revisado_em: string | null;
+  created_at: string;
+};
+
+export type InscricaoDependente = {
+  id: string;
+  inscricao_id: string;
+  nome: string;
+  cpf: string | null;
+  email: string | null;
+  whatsapp: string | null;
+  data_nascimento: string;
+  created_at: string;
+};
+
+export type InscricaoComDependentes = Inscricao & {
+  inscricao_dependentes: InscricaoDependente[];
+  revisor: { nome: string } | null;
 };
 
 export type MembroAuditoria = {

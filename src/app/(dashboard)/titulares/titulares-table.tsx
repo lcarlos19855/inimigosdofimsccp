@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { fmtDataNascimento } from "@/lib/idade";
 import { TitularRowActions } from "./titular-row-actions";
 import {
   TitularDependentesDialog,
@@ -14,6 +15,7 @@ type TitularRow = {
   cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
 };
 
@@ -44,6 +46,9 @@ export function TitularesTable({
             title="Clique para ver dependentes"
           >
             <td className="px-4 py-3 font-medium text-slate-900">{t.nome}</td>
+            <td className="px-4 py-3 text-slate-600">
+              {fmtDataNascimento(t.data_nascimento)}
+            </td>
             <td className="px-4 py-3 text-slate-600">{t.cpf ?? "—"}</td>
             <td className="px-4 py-3 text-slate-600">{t.email ?? "—"}</td>
             <td className="px-4 py-3 text-slate-600">{t.whatsapp ?? "—"}</td>

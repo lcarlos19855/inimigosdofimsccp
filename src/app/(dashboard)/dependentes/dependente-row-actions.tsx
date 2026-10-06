@@ -14,8 +14,10 @@ type DependenteRow = {
   id: string;
   titular_id: string;
   nome: string;
+  cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
 };
 

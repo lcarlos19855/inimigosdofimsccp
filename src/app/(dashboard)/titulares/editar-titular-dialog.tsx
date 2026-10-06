@@ -10,14 +10,22 @@ type TitularRow = {
   cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
 };
+
+function toDateInput(value: string | null): string {
+  return value ? value.slice(0, 10) : "";
+}
 
 export function EditarTitularDialog({ titular }: { titular: TitularRow }) {
   const router = useRouter();
   const dialogId = useId();
   const [open, setOpen] = useState(false);
   const [nome, setNome] = useState(titular.nome);
+  const [dataNascimento, setDataNascimento] = useState(
+    toDateInput(titular.data_nascimento)
+  );
   const [cpf, setCpf] = useState(titular.cpf ?? "");
   const [email, setEmail] = useState(titular.email ?? "");
   const [whatsapp, setWhatsapp] = useState(titular.whatsapp ?? "");
@@ -27,6 +35,7 @@ export function EditarTitularDialog({ titular }: { titular: TitularRow }) {
   useEffect(() => {
     if (open) {
       setNome(titular.nome);
+      setDataNascimento(toDateInput(titular.data_nascimento));
       setCpf(titular.cpf ?? "");
       setEmail(titular.email ?? "");
       setWhatsapp(titular.whatsapp ?? "");
@@ -39,6 +48,7 @@ export function EditarTitularDialog({ titular }: { titular: TitularRow }) {
     setError(null);
     const fd = new FormData();
     fd.set("nome", nome);
+    fd.set("data_nascimento", dataNascimento);
     fd.set("cpf", cpf);
     fd.set("email", email);
     fd.set("whatsapp", whatsapp);
@@ -90,6 +100,13 @@ export function EditarTitularDialog({ titular }: { titular: TitularRow }) {
                 </p>
               )}
               <Field label="Nome completo *" value={nome} onChange={setNome} disabled={pending} />
+              <Field
+                label="Data de nascimento"
+                value={dataNascimento}
+                onChange={setDataNascimento}
+                disabled={pending}
+                type="date"
+              />
               <Field label="CPF" value={cpf} onChange={setCpf} disabled={pending} />
               <Field label="E-mail" value={email} onChange={setEmail} disabled={pending} type="email" />
               <Field label="WhatsApp" value={whatsapp} onChange={setWhatsapp} disabled={pending} />

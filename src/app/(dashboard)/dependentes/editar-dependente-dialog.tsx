@@ -9,10 +9,16 @@ type DependenteRow = {
   id: string;
   titular_id: string;
   nome: string;
+  cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
 };
+
+function toDateInput(value: string | null): string {
+  return value ? value.slice(0, 10) : "";
+}
 
 export function EditarDependenteDialog({
   dependente,
@@ -26,6 +32,10 @@ export function EditarDependenteDialog({
   const [open, setOpen] = useState(false);
   const [titularId, setTitularId] = useState(dependente.titular_id);
   const [nome, setNome] = useState(dependente.nome);
+  const [dataNascimento, setDataNascimento] = useState(
+    toDateInput(dependente.data_nascimento)
+  );
+  const [cpf, setCpf] = useState(dependente.cpf ?? "");
   const [email, setEmail] = useState(dependente.email ?? "");
   const [whatsapp, setWhatsapp] = useState(dependente.whatsapp ?? "");
   const [error, setError] = useState<string | null>(null);
@@ -35,6 +45,8 @@ export function EditarDependenteDialog({
     if (open) {
       setTitularId(dependente.titular_id);
       setNome(dependente.nome);
+      setDataNascimento(toDateInput(dependente.data_nascimento));
+      setCpf(dependente.cpf ?? "");
       setEmail(dependente.email ?? "");
       setWhatsapp(dependente.whatsapp ?? "");
       setError(null);
@@ -47,6 +59,8 @@ export function EditarDependenteDialog({
     const fd = new FormData();
     fd.set("titular_id", titularId);
     fd.set("nome", nome);
+    fd.set("data_nascimento", dataNascimento);
+    fd.set("cpf", cpf);
     fd.set("email", email);
     fd.set("whatsapp", whatsapp);
     startTransition(async () => {
@@ -113,6 +127,14 @@ export function EditarDependenteDialog({
                 </select>
               </label>
               <Field label="Nome completo *" value={nome} onChange={setNome} disabled={pending} />
+              <Field
+                label="Data de nascimento"
+                value={dataNascimento}
+                onChange={setDataNascimento}
+                disabled={pending}
+                type="date"
+              />
+              <Field label="CPF" value={cpf} onChange={setCpf} disabled={pending} />
               <Field label="E-mail" value={email} onChange={setEmail} disabled={pending} type="email" />
               <Field label="WhatsApp" value={whatsapp} onChange={setWhatsapp} disabled={pending} />
               <div className="flex justify-end gap-2 pt-2">

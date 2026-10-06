@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { DependentesFiltersForm } from "@/components/dashboard-list-filters";
 import { personSearchQuery } from "@/lib/person-search";
 import { searchParamOne } from "@/lib/search-params";
+import { fmtDataNascimento } from "@/lib/idade";
 import type { DependenteComTitular, Titular } from "@/types/database";
 import { DependenteRowActions } from "./dependente-row-actions";
 
@@ -112,11 +113,12 @@ export default async function DependentesPage({ searchParams }: Props) {
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[840px] text-left text-sm">
+          <table className="w-full min-w-[940px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Nome</th>
                 <th className="px-4 py-3">Titular</th>
+                <th className="px-4 py-3">Nascimento</th>
                 <th className="px-4 py-3">E-mail</th>
                 <th className="px-4 py-3">WhatsApp</th>
                 <th className="px-4 py-3">Status</th>
@@ -127,7 +129,7 @@ export default async function DependentesPage({ searchParams }: Props) {
               {dependentes.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-4 py-10 text-center text-slate-500"
                   >
                     {emptyBecauseFilter ? (
@@ -161,6 +163,9 @@ export default async function DependentesPage({ searchParams }: Props) {
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {d.titulares?.nome ?? "—"}
+                    </td>
+                    <td className="px-4 py-3 text-slate-600">
+                      {fmtDataNascimento(d.data_nascimento)}
                     </td>
                     <td className="px-4 py-3 text-slate-600">
                       {d.email ?? "—"}

@@ -39,7 +39,7 @@ export default async function TitularesPage({ searchParams }: Props) {
     const ids = titulares.map((t) => t.id);
     const { data: deps } = await supabase
       .from("dependentes")
-      .select("id, titular_id, nome, email, whatsapp, status")
+      .select("id, titular_id, nome, email, whatsapp, data_nascimento, status")
       .in("titular_id", ids)
       .is("excluido_em", null)
       .order("nome");
@@ -50,6 +50,7 @@ export default async function TitularesPage({ searchParams }: Props) {
         nome: d.nome,
         email: d.email,
         whatsapp: d.whatsapp,
+        data_nascimento: d.data_nascimento,
         status: d.status,
       };
       if (!dependentesByTitular[d.titular_id]) {
@@ -87,10 +88,11 @@ export default async function TitularesPage({ searchParams }: Props) {
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+          <table className="w-full min-w-[860px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
               <tr>
                 <th className="px-4 py-3">Nome</th>
+                <th className="px-4 py-3">Nascimento</th>
                 <th className="px-4 py-3">CPF</th>
                 <th className="px-4 py-3">E-mail</th>
                 <th className="px-4 py-3">WhatsApp</th>
@@ -102,7 +104,7 @@ export default async function TitularesPage({ searchParams }: Props) {
               <tbody>
                 <tr>
                   <td
-                    colSpan={6}
+                    colSpan={7}
                     className="px-4 py-10 text-center text-slate-500"
                   >
                     {emptyBecauseFilter ? (

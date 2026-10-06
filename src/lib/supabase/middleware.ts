@@ -32,7 +32,11 @@ export async function updateSession(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const isLogin = path.startsWith("/login");
   const isRedefinirSenha = path === "/redefinir-senha";
-  const isPublic = path === "/" || isLogin || path.startsWith("/auth");
+  const isCadastroIntegrante =
+    path === "/cadastro-integrante" ||
+    path.startsWith("/cadastro-integrante/");
+  const isPublic =
+    path === "/" || isLogin || path.startsWith("/auth") || isCadastroIntegrante;
 
   if (!user && isRedefinirSenha) {
     const url = request.nextUrl.clone();

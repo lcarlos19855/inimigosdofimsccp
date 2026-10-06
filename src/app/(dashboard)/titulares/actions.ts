@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { getCurrentProfile } from "@/lib/auth/profile";
 import { verifyCurrentUserPassword } from "@/lib/auth/verify-password";
+import { parseDataNascimento } from "@/lib/idade";
 import {
   registrarMembroAuditoria,
   snapshotTitular,
@@ -12,12 +13,24 @@ import { createClient } from "@/lib/supabase/server";
 
 export type TitularFormState = { error?: string } | null;
 
+const TITULAR_SELECT =
+  "id, nome, cpf, email, whatsapp, data_nascimento, status";
+
 async function requireActiveProfile() {
   const profile = await getCurrentProfile();
   if (!profile?.ativo) {
     return { error: "Sessão inválida ou usuário inativo." };
   }
   return { profile };
+}
+
+function parseDataNascimentoField(raw: FormDataEntryValue | null) {
+  const value = String(raw ?? "").trim();
+  if (!value) return { value: null as string | null };
+  if (!parseDataNascimento(value)) {
+    return { error: "Data de nascimento inválida." };
+  }
+  return { value };
 }
 
 export async function createTitular(
@@ -31,6 +44,8 @@ export async function createTitular(
   const cpf = String(formData.get("cpf") ?? "").trim() || null;
   const email = String(formData.get("email") ?? "").trim() || null;
   const whatsapp = String(formData.get("whatsapp") ?? "").trim() || null;
+  const nasc = parseDataNascimentoField(formData.get("data_nascimento"));
+  if ("error" in nasc) return nasc;
   const status = formData.get("status") === "inativo" ? "inativo" : "ativo";
 
   if (!nome) {
@@ -40,8 +55,15 @@ export async function createTitular(
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("titulares")
-    .insert({ nome, cpf, email, whatsapp, status })
-    .select("id, nome, cpf, email, whatsapp, status")
+    .insert({
+      nome,
+      cpf,
+      email,
+      whatsapp,
+      data_nascimento: nasc.value,
+      status,
+    })
+    .select(TITULAR_SELECT)
     .single();
 
   if (error) {
@@ -72,6 +94,8 @@ export async function updateTitular(
   const cpf = String(formData.get("cpf") ?? "").trim() || null;
   const email = String(formData.get("email") ?? "").trim() || null;
   const whatsapp = String(formData.get("whatsapp") ?? "").trim() || null;
+  const nasc = parseDataNascimentoField(formData.get("data_nascimento"));
+  if ("error" in nasc) return nasc;
 
   if (!id) return { error: "Titular inválido." };
   if (!nome) return { error: "Nome é obrigatório." };
@@ -79,7 +103,7 @@ export async function updateTitular(
   const supabase = await createClient();
   const { data: antes, error: fetchErr } = await supabase
     .from("titulares")
-    .select("id, nome, cpf, email, whatsapp, status, excluido_em")
+    .select(`${TITULAR_SELECT}, excluido_em`)
     .eq("id", id)
     .maybeSingle();
 
@@ -89,9 +113,15 @@ export async function updateTitular(
 
   const { data: depois, error } = await supabase
     .from("titulares")
-    .update({ nome, cpf, email, whatsapp })
+    .update({
+      nome,
+      cpf,
+      email,
+      whatsapp,
+      data_nascimento: nasc.value,
+    })
     .eq("id", id)
-    .select("id, nome, cpf, email, whatsapp, status")
+    .select(TITULAR_SELECT)
     .single();
 
   if (error) return { error: error.message };
@@ -122,7 +152,7 @@ export async function toggleTitularStatus(
   const supabase = await createClient();
   const { data: antes, error: fetchErr } = await supabase
     .from("titulares")
-    .select("id, nome, cpf, email, whatsapp, status, excluido_em")
+    .select(`${TITULAR_SELECT}, excluido_em`)
     .eq("id", id)
     .maybeSingle();
 
@@ -135,7 +165,7 @@ export async function toggleTitularStatus(
     .from("titulares")
     .update({ status: novoStatus })
     .eq("id", id)
-    .select("id, nome, cpf, email, whatsapp, status")
+    .select(TITULAR_SELECT)
     .single();
 
   if (error) return { error: error.message };
@@ -174,7 +204,7 @@ export async function excluirTitular(
 
   const { data: antes, error: fetchErr } = await supabase
     .from("titulares")
-    .select("id, nome, cpf, email, whatsapp, status, excluido_em")
+    .select(`${TITULAR_SELECT}, excluido_em`)
     .eq("id", id)
     .maybeSingle();
 

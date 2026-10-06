@@ -28,3 +28,5 @@ services:
         sync: false
       - key: MAIL_FROM_NAME
         value: Inimigos do Fim
+      - key: CADASTRO_TURMA_CODIGO
+        sync: false

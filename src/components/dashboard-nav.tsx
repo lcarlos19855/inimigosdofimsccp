@@ -11,6 +11,7 @@ const links: { href: string; label: string; disabled?: boolean }[] = [
   { href: "/caixa", label: "Caixa" },
   { href: "/comunicados", label: "Comunicados" },
   { href: "/materiais", label: "Controle de Materiais" },
+  { href: "/cadastros-pendentes", label: "Cadastros pendentes" },
   { href: "/auditoria", label: "Auditoria" },
   { href: "/usuarios", label: "Usuários" },
 ];

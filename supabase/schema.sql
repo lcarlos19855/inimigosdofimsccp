@@ -60,6 +60,7 @@ create table public.titulares (
   cpf text,
   email text,
   whatsapp text,
+  data_nascimento date,
   status text not null default 'ativo'
     check (status in ('ativo', 'inativo')),
   excluido_em timestamptz,
@@ -77,8 +78,10 @@ create table public.dependentes (
   id uuid primary key default gen_random_uuid(),
   titular_id uuid not null references public.titulares (id) on delete cascade,
   nome text not null,
+  cpf text,
   email text,
   whatsapp text,
+  data_nascimento date,
   status text not null default 'ativo'
     check (status in ('ativo', 'inativo')),
   excluido_em timestamptz,
@@ -86,6 +89,39 @@ create table public.dependentes (
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
+
+-- Inscrições públicas (pendentes de aprovação)
+create table public.inscricoes (
+  id uuid primary key default gen_random_uuid(),
+  titular_nome text not null,
+  titular_cpf text,
+  titular_email text,
+  titular_whatsapp text,
+  titular_data_nascimento date not null,
+  status text not null default 'pendente'
+    check (status in ('pendente', 'aprovado', 'rejeitado')),
+  motivo_rejeicao text,
+  revisado_por uuid references public.profiles (id) on delete set null,
+  revisado_em timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index inscricoes_status_created_idx
+  on public.inscricoes (status, created_at desc);
+
+create table public.inscricao_dependentes (
+  id uuid primary key default gen_random_uuid(),
+  inscricao_id uuid not null references public.inscricoes (id) on delete cascade,
+  nome text not null,
+  cpf text,
+  email text,
+  whatsapp text,
+  data_nascimento date not null,
+  created_at timestamptz not null default now()
+);
+
+create index inscricao_dependentes_inscricao_idx
+  on public.inscricao_dependentes (inscricao_id);
 
 create trigger dependentes_updated_at
   before update on public.dependentes
@@ -238,6 +274,8 @@ alter table public.membros_auditoria enable row level security;
 alter table public.materiais enable row level security;
 alter table public.materiais_auditoria enable row level security;
 alter table public.pagamentos_auditoria enable row level security;
+alter table public.inscricoes enable row level security;
+alter table public.inscricao_dependentes enable row level security;
 
 -- Painel interno: qualquer usuário autenticado acessa tudo (MVP)
 create policy "profiles_authenticated_all" on public.profiles
@@ -247,6 +285,12 @@ create policy "titulares_authenticated_all" on public.titulares
   for all to authenticated using (true) with check (true);
 
 create policy "dependentes_authenticated_all" on public.dependentes
+  for all to authenticated using (true) with check (true);
+
+create policy "inscricoes_authenticated_all" on public.inscricoes
+  for all to authenticated using (true) with check (true);
+
+create policy "inscricao_dependentes_authenticated_all" on public.inscricao_dependentes
   for all to authenticated using (true) with check (true);
 
 create policy "membros_auditoria_authenticated_all" on public.membros_auditoria

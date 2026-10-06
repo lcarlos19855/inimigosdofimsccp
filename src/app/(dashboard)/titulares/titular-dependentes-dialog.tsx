@@ -1,12 +1,14 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId } from "react";
+import { fmtDataNascimento } from "@/lib/idade";
 
 export type DependenteResumo = {
   id: string;
   nome: string;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
 };
 
@@ -16,6 +18,7 @@ export type TitularComDependentes = {
   cpf: string | null;
   email: string | null;
   whatsapp: string | null;
+  data_nascimento: string | null;
   status: "ativo" | "inativo";
   dependentes: DependenteResumo[];
 };
@@ -55,9 +58,9 @@ export function TitularDependentesDialog({
           </h2>
           <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
             <div>
-              <dt className="text-slate-500">CPF</dt>
+              <dt className="text-slate-500">Nascimento</dt>
               <dd className="font-medium text-slate-800">
-                {titular.cpf ?? "—"}
+                {fmtDataNascimento(titular.data_nascimento)}
               </dd>
             </div>
             <div>
@@ -72,6 +75,12 @@ export function TitularDependentesDialog({
                 >
                   {titular.status === "ativo" ? "Ativo" : "Inativo"}
                 </span>
+              </dd>
+            </div>
+            <div>
+              <dt className="text-slate-500">CPF</dt>
+              <dd className="font-medium text-slate-800">
+                {titular.cpf ?? "—"}
               </dd>
             </div>
             <div>
@@ -103,6 +112,7 @@ export function TitularDependentesDialog({
                 <thead className="border-b border-slate-200 bg-slate-50 text-xs font-semibold uppercase text-slate-500">
                   <tr>
                     <th className="px-3 py-2">Nome</th>
+                    <th className="px-3 py-2">Nascimento</th>
                     <th className="px-3 py-2">E-mail</th>
                     <th className="px-3 py-2">WhatsApp</th>
                     <th className="px-3 py-2">Status</th>
@@ -113,6 +123,9 @@ export function TitularDependentesDialog({
                     <tr key={d.id}>
                       <td className="px-3 py-2 font-medium text-slate-900">
                         {d.nome}
+                      </td>
+                      <td className="px-3 py-2 text-slate-600">
+                        {fmtDataNascimento(d.data_nascimento)}
                       </td>
                       <td className="px-3 py-2 text-slate-600">
                         {d.email ?? "—"}
