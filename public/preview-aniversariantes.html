@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Prévia — Aniversariantes do mês</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: #e2e8f0;
+        font-family: "Playfair Display", Georgia, serif;
+      }
+      article {
+        position: relative;
+        width: min(100%, 26rem);
+        aspect-ratio: 9 / 16;
+        overflow: hidden;
+        border-radius: 1rem;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.35);
+      }
+      .fundo {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+      .content {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100%;
+        padding: 3% 1rem 0;
+        text-align: center;
+      }
+      .logo {
+        height: 16%;
+        width: auto;
+        max-width: 40%;
+        object-fit: contain;
+        filter: drop-shadow(0 0 12px rgba(0, 0, 0, 0.45));
+      }
+      .intro,
+      .mes {
+        margin: 0.25rem 0 0;
+        font-size: 0.8rem;
+        color: #f5d76e;
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.85);
+      }
+      h1 {
+        margin: 0;
+        font-family: "Great Vibes", cursive;
+        font-size: clamp(2.1rem, 7.5vw, 3rem);
+        font-weight: 400;
+        line-height: 1.1;
+        color: #f5d76e;
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.75);
+      }
+      .lista {
+        margin-top: 0.5rem;
+        width: 86%;
+        max-height: 42%;
+        flex-shrink: 1;
+        min-height: 0;
+        overflow-y: auto;
+        border-radius: 0.75rem;
+        border: 1.5px solid #d4af37;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 0.5rem 0.85rem;
+        text-align: left;
+      }
+      .lista li {
+        list-style: none;
+        padding: 0.2rem 0;
+        font-size: 0.95rem;
+        font-weight: 500;
+        color: #f7ecc0;
+      }
+      .spacer {
+        height: 26%;
+        width: 100%;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <article>
+      <img
+        class="fundo"
+        src="/arte-aniversariantes-fundo.jpg?v=7"
+        alt=""
+        aria-hidden="true"
+      />
+      <div class="content">
+        <img
+          class="logo"
+          src="/simbolo-turma.png"
+          alt="Inimigos do Fim — SCCP"
+        />
+        <p class="intro">O Inimigos do Fim deseja um</p>
+        <h1>Feliz Aniversário</h1>
+        <p class="mes">aos aniversariantes de Outubro</p>
+        <ul class="lista">
+          <li><span style="color:#f5d76e">05/10</span> — Exemplo Um</li>
+          <li><span style="color:#f5d76e">12/10</span> — Exemplo Dois</li>
+          <li><span style="color:#f5d76e">28/10</span> — Exemplo Três</li>
+        </ul>
+        <div class="spacer" aria-hidden="true"></div>
+      </div>
+    </article>
+  </body>
+</html>

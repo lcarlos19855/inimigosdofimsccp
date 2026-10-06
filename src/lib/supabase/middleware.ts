@@ -37,12 +37,16 @@ export async function updateSession(request: NextRequest) {
     path.startsWith("/cadastro-integrante/");
   const isAcompanhamento =
     path === "/acompanhamento" || path.startsWith("/acompanhamento/");
+  const isAniversariantesMes =
+    path === "/aniversariantes-mes" ||
+    path.startsWith("/aniversariantes-mes/");
   const isPublic =
     path === "/" ||
     isLogin ||
     path.startsWith("/auth") ||
     isCadastroIntegrante ||
-    isAcompanhamento;
+    isAcompanhamento ||
+    isAniversariantesMes;
 
   if (!user && isRedefinirSenha) {
     const url = request.nextUrl.clone();

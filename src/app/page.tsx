@@ -21,6 +21,12 @@ const opcoes = [
     descricao: "Saldo, receitas e despesas — só visualização, sem editar.",
     destaque: false,
   },
+  {
+    href: "/aniversariantes-mes",
+    titulo: "Aniversariantes do mês",
+    descricao: "Veja a arte com quem faz aniversário neste mês.",
+    destaque: false,
+  },
 ] as const;
 
 export default async function Home() {

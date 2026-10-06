@@ -7,6 +7,7 @@ const links: { href: string; label: string; disabled?: boolean }[] = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/titulares", label: "Titulares" },
   { href: "/dependentes", label: "Dependentes" },
+  { href: "/aniversariantes", label: "Aniversariantes" },
   { href: "/pagamentos", label: "Recebimentos" },
   { href: "/caixa", label: "Caixa" },
   { href: "/comunicados", label: "Comunicados" },
