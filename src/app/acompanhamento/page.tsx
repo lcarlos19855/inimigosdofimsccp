@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { CadastroIntegranteForm } from "./cadastro-form";
+import { AcompanhamentoApp } from "./acompanhamento-app";
 
-export default function CadastroIntegrantePage() {
+export default function AcompanhamentoPage() {
   return (
     <div className="min-h-full bg-slate-50 px-4 py-8">
-      <div className="mx-auto max-w-xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6">
         <div className="text-center">
           <Link
             href="/"
@@ -16,14 +16,13 @@ export default function CadastroIntegrantePage() {
             Inimigos do Fim
           </p>
           <h1 className="mt-1 text-2xl font-semibold text-slate-900">
-            Cadastro de integrante
+            Acompanhamento da turma
           </h1>
           <p className="mt-2 text-sm text-slate-600">
-            Valide o código da turma e depois preencha os dados do titular e
-            dos dependentes. Seu cadastro ficará pendente até a aprovação.
+            Painel somente leitura para acompanhar saldo, receitas e despesas.
           </p>
         </div>
-        <CadastroIntegranteForm />
+        <AcompanhamentoApp />
       </div>
     </div>
   );

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
@@ -7,8 +8,14 @@ export default function LoginPage() {
         className="dashboard-watermark-layer absolute inset-0 z-0"
         aria-hidden
       />
-      <div className="relative z-10 flex w-full flex-col items-center">
+      <div className="relative z-10 flex w-full flex-col items-center gap-4">
         <LoginForm />
+        <Link
+          href="/"
+          className="text-sm font-medium text-slate-600 hover:text-slate-900 hover:underline"
+        >
+          ← Voltar ao início
+        </Link>
       </div>
     </div>
   );

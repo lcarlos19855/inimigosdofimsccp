@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useState, useTransition } from "react";
 import { isMaiorDeIdade } from "@/lib/idade";
-import { enviarCadastroIntegrante } from "./actions";
+import { enviarCadastroIntegrante, validarCodigoTurma } from "./actions";
 
 type DepDraft = {
   key: string;
@@ -29,6 +29,10 @@ export function CadastroIntegranteForm() {
     enviarCadastroIntegrante,
     null
   );
+  const [codigo, setCodigo] = useState("");
+  const [codigoValidado, setCodigoValidado] = useState(false);
+  const [codigoError, setCodigoError] = useState<string | null>(null);
+  const [validating, startValidate] = useTransition();
   const [titularNasc, setTitularNasc] = useState("");
   const [deps, setDeps] = useState<DepDraft[]>([]);
 
@@ -45,11 +49,65 @@ export function CadastroIntegranteForm() {
     );
   }
 
+  if (!codigoValidado) {
+    return (
+      <form
+        className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setCodigoError(null);
+          startValidate(async () => {
+            const res = await validarCodigoTurma(codigo);
+            if (res.error) {
+              setCodigoError(res.error);
+              return;
+            }
+            setCodigoValidado(true);
+          });
+        }}
+      >
+        <h2 className="text-base font-semibold text-slate-900">
+          Código da turma
+        </h2>
+        <p className="text-sm text-slate-600">
+          Informe o código que você recebeu no WhatsApp para liberar o
+          formulário de cadastro.
+        </p>
+        {codigoError && (
+          <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+            {codigoError}
+          </p>
+        )}
+        <label className="flex flex-col gap-1 text-sm">
+          <span className="font-medium text-slate-700">Código *</span>
+          <input
+            type="text"
+            required
+            value={codigo}
+            onChange={(e) => setCodigo(e.target.value)}
+            disabled={validating}
+            autoComplete="off"
+            className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
+            placeholder="Código da turma"
+          />
+        </label>
+        <button
+          type="submit"
+          disabled={validating || !codigo.trim()}
+          className="w-full rounded-lg bg-blue-600 py-3 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60"
+        >
+          {validating ? "Validando…" : "Validar"}
+        </button>
+      </form>
+    );
+  }
+
   const titularMaior =
     titularNasc.length === 10 ? isMaiorDeIdade(titularNasc) : true;
 
   return (
     <form action={formAction} className="space-y-8">
+      <input type="hidden" name="codigo" value={codigo} />
       {/* honeypot */}
       <input
         type="text"
@@ -60,31 +118,26 @@ export function CadastroIntegranteForm() {
         aria-hidden
       />
 
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <span>Código validado. Preencha os dados abaixo.</span>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => {
+            setCodigoValidado(false);
+            setCodigoError(null);
+          }}
+          className="font-medium text-emerald-800 underline hover:no-underline disabled:opacity-50"
+        >
+          Trocar código
+        </button>
+      </div>
+
       {state?.error && (
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {state.error}
         </p>
       )}
-
-      <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-        <h2 className="text-base font-semibold text-slate-900">
-          Código da turma
-        </h2>
-        <p className="text-sm text-slate-600">
-          Informe o código que você recebeu no WhatsApp.
-        </p>
-        <label className="flex flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700">Código *</span>
-          <input
-            name="codigo"
-            required
-            disabled={pending}
-            autoComplete="off"
-            className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2 disabled:opacity-60"
-            placeholder="Código da turma"
-          />
-        </label>
-      </section>
 
       <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
         <div>

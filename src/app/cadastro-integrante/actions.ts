@@ -1,11 +1,17 @@
 "use server";
 
-import { timingSafeEqual } from "crypto";
 import { validarPessoaPorIdade } from "@/lib/idade";
 import {
   createAdminClient,
   getServiceRoleMissingMessage,
 } from "@/lib/supabase/admin";
+import {
+  codigoTurmaCorreto,
+  getTurmaCodigoConfigurado,
+  validarCodigoTurma,
+} from "@/lib/turma-codigo";
+
+export { validarCodigoTurma };
 
 export type CadastroIntegranteState = {
   error?: string;
@@ -19,15 +25,6 @@ type DependentePayload = {
   whatsapp: string;
   data_nascimento: string;
 };
-
-function codigoCorreto(informado: string): boolean {
-  const esperado = process.env.CADASTRO_TURMA_CODIGO?.trim() ?? "";
-  if (!esperado) return false;
-  const a = Buffer.from(informado.trim());
-  const b = Buffer.from(esperado);
-  if (a.length !== b.length) return false;
-  return timingSafeEqual(a, b);
-}
 
 function parseDependentes(formData: FormData): DependentePayload[] {
   const nomes = formData.getAll("dep_nome").map((v) => String(v));
@@ -50,7 +47,6 @@ function parseDependentes(formData: FormData): DependentePayload[] {
   for (let i = 0; i < count; i++) {
     const nome = (nomes[i] ?? "").trim();
     const data_nascimento = (nascimentos[i] ?? "").trim();
-    // Ignora linhas completamente vazias
     if (!nome && !data_nascimento) continue;
     list.push({
       nome,
@@ -67,12 +63,11 @@ export async function enviarCadastroIntegrante(
   _prev: CadastroIntegranteState,
   formData: FormData
 ): Promise<CadastroIntegranteState> {
-  // Honeypot
   if (String(formData.get("website") ?? "").trim()) {
     return { success: true };
   }
 
-  if (!process.env.CADASTRO_TURMA_CODIGO?.trim()) {
+  if (!getTurmaCodigoConfigurado()) {
     return {
       error:
         "Cadastro público ainda não configurado. Peça ao administrador para definir o código da turma.",
@@ -80,7 +75,7 @@ export async function enviarCadastroIntegrante(
   }
 
   const codigo = String(formData.get("codigo") ?? "");
-  if (!codigoCorreto(codigo)) {
+  if (!codigoTurmaCorreto(codigo)) {
     return { error: "Código da turma inválido." };
   }
 
@@ -89,7 +84,9 @@ export async function enviarCadastroIntegrante(
     cpf: String(formData.get("titular_cpf") ?? "").trim() || null,
     email: String(formData.get("titular_email") ?? "").trim() || null,
     whatsapp: String(formData.get("titular_whatsapp") ?? "").trim() || null,
-    data_nascimento: String(formData.get("titular_data_nascimento") ?? "").trim(),
+    data_nascimento: String(
+      formData.get("titular_data_nascimento") ?? ""
+    ).trim(),
   };
 
   const errTitular = validarPessoaPorIdade(

@@ -35,8 +35,14 @@ export async function updateSession(request: NextRequest) {
   const isCadastroIntegrante =
     path === "/cadastro-integrante" ||
     path.startsWith("/cadastro-integrante/");
+  const isAcompanhamento =
+    path === "/acompanhamento" || path.startsWith("/acompanhamento/");
   const isPublic =
-    path === "/" || isLogin || path.startsWith("/auth") || isCadastroIntegrante;
+    path === "/" ||
+    isLogin ||
+    path.startsWith("/auth") ||
+    isCadastroIntegrante ||
+    isAcompanhamento;
 
   if (!user && isRedefinirSenha) {
     const url = request.nextUrl.clone();
