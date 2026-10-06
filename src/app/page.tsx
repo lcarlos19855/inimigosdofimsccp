@@ -34,12 +34,8 @@ export default async function Home() {
   }
 
   return (
-    <div className="relative flex min-h-full flex-1 flex-col">
-      <div
-        className="dashboard-watermark-layer absolute inset-0 z-0"
-        aria-hidden
-      />
-      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-12">
+    <div className="flex min-h-full flex-1 flex-col">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col justify-center px-4 py-12">
         <header className="text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
             Inimigos do Fim

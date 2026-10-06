@@ -3,7 +3,7 @@ import { CadastroIntegranteForm } from "./cadastro-form";
 
 export default function CadastroIntegrantePage() {
   return (
-    <div className="min-h-full bg-slate-50 px-4 py-8">
+    <div className="min-h-full px-4 py-8">
       <div className="mx-auto max-w-xl space-y-6">
         <div className="text-center">
           <Link

@@ -102,70 +102,53 @@ export function AcompanhamentoApp() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-        <span>Acesso liberado — apenas visualização (sem edição).</span>
-        <button
-          type="button"
-          onClick={() => {
-            setCodigoValidado(false);
-            setData(null);
-            setPanel(null);
-          }}
-          className="font-medium underline hover:no-underline"
-        >
-          Sair
-        </button>
-      </div>
-
+    <div className="space-y-5">
       <form
-        className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end"
+        className="flex flex-wrap items-end gap-2 rounded-lg border border-slate-200 bg-white/90 px-3 py-2.5 shadow-sm"
         onSubmit={(e) => {
           e.preventDefault();
           load(dataDe, dataAte);
         }}
       >
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700">De</span>
+        <label className="flex w-[9.5rem] flex-col gap-0.5 text-xs">
+          <span className="font-medium text-slate-600">De</span>
           <input
             type="date"
             value={dataDe}
             onChange={(e) => setDataDe(e.target.value)}
             disabled={loading}
-            className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
+            className="rounded-md border border-slate-200 px-2 py-1.5 text-sm outline-none ring-blue-500 focus:ring-2"
           />
         </label>
-        <label className="flex min-w-0 flex-1 flex-col gap-1 text-sm">
-          <span className="font-medium text-slate-700">Até</span>
+        <label className="flex w-[9.5rem] flex-col gap-0.5 text-xs">
+          <span className="font-medium text-slate-600">Até</span>
           <input
             type="date"
             value={dataAte}
             onChange={(e) => setDataAte(e.target.value)}
             disabled={loading}
-            className="rounded-lg border border-slate-200 px-3 py-2 outline-none ring-blue-500 focus:ring-2"
+            className="rounded-md border border-slate-200 px-2 py-1.5 text-sm outline-none ring-blue-500 focus:ring-2"
           />
         </label>
-        <div className="flex gap-2">
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
-          >
-            {loading ? "Filtrando…" : "Filtrar"}
-          </button>
-          <button
-            type="button"
-            disabled={loading}
-            onClick={() => {
-              setDataDe("");
-              setDataAte("");
-              load("", "");
-            }}
-            className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
-          >
-            Limpar
-          </button>
-        </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded-md bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800 disabled:opacity-50"
+        >
+          {loading ? "…" : "Filtrar"}
+        </button>
+        <button
+          type="button"
+          disabled={loading}
+          onClick={() => {
+            setDataDe("");
+            setDataAte("");
+            load("", "");
+          }}
+          className="rounded-md border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+        >
+          Limpar
+        </button>
       </form>
 
       {loadError && (

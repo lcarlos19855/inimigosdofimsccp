@@ -118,21 +118,6 @@ export function CadastroIntegranteForm() {
         aria-hidden
       />
 
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-        <span>Código validado. Preencha os dados abaixo.</span>
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => {
-            setCodigoValidado(false);
-            setCodigoError(null);
-          }}
-          className="font-medium text-emerald-800 underline hover:no-underline disabled:opacity-50"
-        >
-          Trocar código
-        </button>
-      </div>
-
       {state?.error && (
         <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
           {state.error}

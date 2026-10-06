@@ -20,11 +20,7 @@ export default async function DashboardLayout({
   return (
     <div className="flex min-h-full flex-1 flex-col md:flex-row">
       <DashboardNav />
-      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-slate-50">
-        <div
-          className="dashboard-watermark-layer absolute inset-0 z-0"
-          aria-hidden
-        />
+      <div className="relative flex min-h-0 min-w-0 flex-1 flex-col bg-slate-50/80">
         <header className="relative z-10 flex items-center justify-between border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur-sm">
           <p className="truncate text-sm text-slate-600">
             {user.email ?? "Administrador"}
