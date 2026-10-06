@@ -5,26 +5,22 @@ import { createClient } from "@/lib/supabase/server";
 const opcoes = [
   {
     href: "/login",
-    titulo: "Entrar no painel",
-    descricao: "Acesso restrito para quem administra a turma.",
+    titulo: "Acesso restrito para gestão da turma",
     destaque: true,
   },
   {
     href: "/cadastro-integrante",
-    titulo: "Cadastro de integrantes",
-    descricao: "Titular e dependentes enviam o cadastro com o código da turma.",
+    titulo: "Cadastro de Titulares e Dependentes da turma",
     destaque: false,
   },
   {
     href: "/acompanhamento",
-    titulo: "Acompanhar a turma",
-    descricao: "Saldo, receitas e despesas — só visualização, sem editar.",
+    titulo: "Dashboard - Saldo, receita e despesas",
     destaque: false,
   },
   {
     href: "/aniversariantes-mes",
-    titulo: "Aniversariantes do mês",
-    descricao: "Veja a arte com quem faz aniversário neste mês.",
+    titulo: "Lista de aniversariantes do mês atual",
     destaque: false,
   },
 ] as const;
@@ -49,10 +45,6 @@ export default async function Home() {
           <h1 className="mt-3 text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
             Gestão da turma
           </h1>
-          <p className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-slate-600">
-            Escolha como quer entrar: administrar o painel, cadastrar um
-            integrante ou só acompanhar o financeiro.
-          </p>
         </header>
 
         <nav className="mt-10 grid gap-3" aria-label="Opções de acesso">
@@ -66,32 +58,21 @@ export default async function Home() {
                   : "group rounded-2xl border border-slate-200 bg-white/95 px-5 py-5 shadow-sm backdrop-blur-sm transition hover:border-slate-300 hover:bg-white"
               }
             >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p
-                    className={
-                      opcao.destaque
-                        ? "text-lg font-semibold"
-                        : "text-lg font-semibold text-slate-900"
-                    }
-                  >
-                    {opcao.titulo}
-                  </p>
-                  <p
-                    className={
-                      opcao.destaque
-                        ? "mt-1 text-sm text-blue-100"
-                        : "mt-1 text-sm text-slate-600"
-                    }
-                  >
-                    {opcao.descricao}
-                  </p>
-                </div>
+              <div className="flex items-center justify-between gap-4">
+                <p
+                  className={
+                    opcao.destaque
+                      ? "text-lg font-semibold"
+                      : "text-lg font-semibold text-slate-900"
+                  }
+                >
+                  {opcao.titulo}
+                </p>
                 <span
                   className={
                     opcao.destaque
-                      ? "mt-1 text-xl text-blue-100 transition group-hover:translate-x-0.5"
-                      : "mt-1 text-xl text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-700"
+                      ? "text-xl text-blue-100 transition group-hover:translate-x-0.5"
+                      : "text-xl text-slate-400 transition group-hover:translate-x-0.5 group-hover:text-slate-700"
                   }
                   aria-hidden
                 >
