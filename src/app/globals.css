@@ -30,7 +30,7 @@ body {
   background-image: var(--marca-dagua-grupo-image);
   background-repeat: no-repeat;
   background-position: center 38%;
-  background-size: min(88vmin, 520px);
-  opacity: 0.1;
+  background-size: min(72vmin, 420px);
+  opacity: 0.12;
   pointer-events: none;
 }
